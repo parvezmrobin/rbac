@@ -1,3 +1,6 @@
 .idea/
 
 instance/
+build/
+dist/
+*.egg-info/
