@@ -1,0 +1,44 @@
+:root {
+            --border-radius: .125rem;
+        }
+
+        .form-control.search {
+            border-radius: var(--border-radius);
+        }
+
+        #sidebar .nav .nav-item{
+            margin-top: .25rem;
+            margin-bottom: .25rem;
+        }
+
+        #sidebar .nav .nav-link {
+            color: var(--gray-dark);
+            font-size: small;
+            font-weight: 700;
+        }
+
+        #sidebar .nav .nav-link.active {
+            color: var(--primary);
+        }
+
+        #sidebar .nav .nav-link .feather{
+            color: var(--gray);
+        }
+
+        #sidebar .nav .nav-link.active .feather{
+            color: var(--primary);
+        }
+
+        #sidebar .nav .nav-link:hover {
+            color: var(--info);
+        }
+
+        #sidebar .nav .nav-link:hover .feather{
+            color: var(--info);
+        }
+
+        .feather {
+            height: 1rem;
+            width: 1rem;
+            vertical-align: text-bottom;
+        }
