@@ -3,10 +3,12 @@ from flask import Blueprint
 
 bp = Blueprint('model.user', __name__)
 
+columns = ['first_name', 'last_name', 'email', 'username']
+
 
 def all_users():
     db = get_db()
-    query = "SELECT * FROM user"
+    query = "SELECT first_name, last_name, email, username FROM user"
     result = db.execute(query).fetchall()
     return result
 
