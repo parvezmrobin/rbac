@@ -1,15 +1,43 @@
-{% extends 'base.html' %}
+{% extends 'template.html' %}
 
-{% block header %}
-  <h1>{% block title %}Log In{% endblock %}</h1>
-{% endblock %}
+
+{% block title %}Log In | {% endblock %}
+
 
 {% block content %}
-  <form method="post">
-    <label for="username">Username</label>
-    <input name="username" id="username" required>
-    <label for="password">Password</label>
-    <input type="password" name="password" id="password" required>
-    <input type="submit" value="Log In">
-  </form>
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-lg-10 col-xl-8 offset-lg-1 offset-xl-2">
+                <h1 class="text-center">Log in</h1>
+                <hr class="primary">
+            </div>
+        </div>
+    </div>
+    <div class="card shadow col-lg-10 col-xl-8 offset-lg-1 offset-xl-2">
+        <div class="card-body">
+            {# TODO: Visualize Error#}
+            <form method="post">
+                <div class="form-group row">
+                    <label for="username" class="col-md-4 col-form-label">Username</label>
+                    <div class="col-md-8">
+                        <input type="text" name="username" id="username" class="form-control" required>
+                    </div>
+                </div>
+
+                <div class="form-group row">
+                    <label for="password" class="col-md-4 col-form-label">Password</label>
+                    <div class="col-md-8">
+                        <input type="password" name="password" id="password" class="form-control" required>
+                    </div>
+                </div>
+
+
+                <div class="form-group row">
+                    <div class="col-md-8 offset-md-4">
+                        <input class="btn btn-outline-primary" type="submit" value="Register">
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
 {% endblock %}

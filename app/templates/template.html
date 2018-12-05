@@ -7,7 +7,7 @@
     <meta name="author" content="Parvez M Robin">
     <link rel="icon" href="{{ url_for('static', filename='rbac.ico') }}">
 
-    <title>RBAC</title>
+    <title>{% block title %}{% endblock %}RBAC</title>
 
     <!-- Bootstrap core CSS -->
     <link href="{{ url_for('static', filename='css/bootstrap.min.css') }}" rel="stylesheet">
@@ -30,9 +30,21 @@
         </form>
 
         <ul class="navbar-nav ml-auto">
-            <li class="nav-item text-nowrap">
-                <a class="nav-link" href="#">Log out</a>
-            </li>
+            {% if g.user %}
+                <li class="nav-item text-nowrap pr-2">
+                    <span class="navbar-text">Hi {{ g.user['username'] }}!</span>
+                </li>
+                <li class="nav-item text-nowrap">
+                    <a class="nav-link" href="{{ url_for('auth.logout') }}">Logout</a>
+                </li>
+            {% else %}
+                <li class="nav-item text-nowrap">
+                    <a class="nav-link" href="{{ url_for('auth.login') }}">Login</a>
+                </li>
+                <li class="nav-item text-nowrap">
+                    <a class="nav-link" href="{{ url_for('auth.register') }}">Register</a>
+                </li>
+            {% endif %}
         </ul>
     </div>
 </nav>
@@ -42,25 +54,25 @@
         <nav class="col-md-3 col-lg-2 mt-5" id="sidebar">
             <ul class="nav flex-column">
                 <li class="nav-item">
-                    <a class="nav-link active" href="#">
+                    <a class="nav-link" id="nav-dash" href="{{ url_for('blog.index') }}">
                         <span data-feather="home"></span>
-                        Dashboard <span class="sr-only">(current)</span>
+                        Dashboard
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="#">
+                    <a class="nav-link" id="nav-user" href="{{ url_for('user.index') }}">
                         <span data-feather="user"></span>
                         Users
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="#">
+                    <a class="nav-link" id="nav-role" href="#">
                         <span data-feather="briefcase"></span>
                         Roles
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="#">
+                    <a class="nav-link" id="nav-permission" href="#">
                         <span data-feather="globe"></span>
                         Permissions
                     </a>
@@ -114,6 +126,14 @@
             }
         }
     });
+</script>
+
+{% block script %}{% endblock %}
+
+<script>
+    $(document).ready(function () {
+        if (typeof nav !== 'undefined') $('#' + nav).addClass('active');
+    })
 </script>
 </body>
 </html>

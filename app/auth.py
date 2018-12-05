@@ -13,30 +13,46 @@ bp = Blueprint('auth', __name__, url_prefix='/auth')
 @bp.route('/register', methods=['GET', 'POST'])
 def register():
     if request.method == 'POST':
+        first_name = request.form['first_name']
+        last_name = request.form['last_name']
+        email = request.form['email']
         username = request.form['username']
         password = request.form['password']
         db = get_db()
-        error = null
+        errors = {}
 
+        if not first_name:
+            errors['first_name'] = 'First name is required.'
+        if not last_name:
+            errors['last_name'] = 'Last name is required.'
+        if not email:
+            errors['email'] = 'Email is required.'
         if not username:
-            error = 'Username is required.'
-        elif not password:
-            error = 'Password is required.'
-        elif db.execute(
+            errors['username'] = 'Username is required.'
+        if not password:
+            errors['password'] = 'Password is required.'
+        if not errors:
+            user = db.execute(
                 'SELECT id FROM user WHERE username = ?', (username,)
-        ).fetchone() is not null:
-            error = f'Username {username} is already taken.'
+             ).fetchone()
+            if user is not null:
+                errors['username'] = f'Username {username} is already taken.'
+            user = db.execute(
+                'SELECT id FROM user WHERE email = ?', (email,)
+            ).fetchone()
+            if user is not null:
+                errors['email'] = f'Email {email} is already taken.'
 
-        if error is null:
+        if not errors:
             db.execute(
-                'INSERT INTO user (username, password) VALUES (?, ?)',
-                (username, generate_password_hash(password))
+                'INSERT INTO user (first_name, last_name, email, username, password) VALUES (?, ?, ?, ?, ?)',
+                (first_name, last_name, email, username, generate_password_hash(password))
             )
             db.commit()
             return redirect(url_for('auth.login'))
 
-        flash(error)
-    return render_template('/auth/register.html')
+        flash(errors)
+    return render_template('auth/register.html')
 
 
 @bp.route("/login", methods=["GET", "POST"])
