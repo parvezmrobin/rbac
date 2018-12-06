@@ -18,3 +18,11 @@ def get_roles(permission_id):
             "inner join permission p on pr.permission_id = p.id where p.id=?"
     result = db.execute(query, (permission_id,)).fetchone()
     return result
+
+
+def create(name, entity, operation):
+    db = get_db()
+    query = "INSERT INTO permission(name, entity, operation) values (?, ?, ?)"
+    result = db.execute(query, (name, entity, operation))
+    db.commit()
+    return result.lastrowid

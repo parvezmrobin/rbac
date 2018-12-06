@@ -1,50 +1,155 @@
 {% extends 'template.html' %}
 
+{% block style %}
+    <style xmlns:v-on="http://www.w3.org/1999/xhtml" xmlns:v-on="http://www.w3.org/1999/xhtml"
+           xmlns:v-on="http://www.w3.org/1999/xhtml" xmlns:v-on="http://www.w3.org/1999/xhtml"
+           xmlns:v-on="http://www.w3.org/1999/xhtml">
+        h1 .btn {
+            height: 3rem;
+        }
+
+        form label.col-form-label {
+            justify-content: flex-end;
+        }
+    </style>
+{% endblock %}
+
 {% block content %}
-    <div class="container-fluid">
+    <div class="container-fluid pt-3" id="vm">
         <div class="row">
             <div class="col">
-                <h1 class="text-center">Permission</h1>
+                <h1 class="text-center">
+                    Permission
+                    <button type="button" class="btn btn-primary float-right" data-toggle="modal"
+                            data-target="#modal-create">
+                        Create Permission
+                    </button>
+                </h1>
             </div>
         </div>
-        <div class="row" id="vm">
+        <div class="row">
             <div class="col table-responsive">
                 <table class="table table-hover">
                     <thead>
                     <tr>
-                        <th>Permission</th>
+                        <th>Name</th>
+                        <th>Entity</th>
+                        <th>Operation</th>
                         <th>Edit</th>
                         <th>Delete</th>
                     </tr>
                     </thead>
-{#                    TODO: Implement User edit and delete#}
+                    {#                    TODO: Implement User edit and delete#}
                     {% raw %}
-                        <tr v-for="permission in permissions">
-                            <td>{{ permission.permission.capitalize() }}</td>
-                            <td><a href="#">Edit</a></td>
-                            <td><a href="#">Delete</a></td>
-                        </tr>
+                    <tr v-for="permission in permissions">
+                        <td>{{ permission.name.capitalize() }}</td>
+                        <td>{{ permission.entity.capitalize() }}</td>
+                        <td>{{ permission.operation.capitalize() }}</td>
+                        <td><a href="#">Edit</a></td>
+                        <td><a href="#">Delete</a></td>
+                    </tr>
                     {% endraw %}
                 </table>
             </div>
         </div>
+
+
+        <!-- Modal -->
+        <div class="modal fade" id="modal-create" tabindex="-1" role="dialog" aria-labelledby="modal-create-label"
+             aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="exampleModalLabel">Create Permission</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <form class="needs-validation" id="form-create">
+                            <div class="form-group">
+                                <div class="form-inline">
+                                    <label for="create-name" class="col-md-4 col-form-label">Name</label>
+                                    <div class="col-md-8">
+                                        <input type="text" id="create-name" class="form-control" v-model="create.name">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="form-inline">
+                                    <label for="create-entity" class="col-md-4 col-form-label">Entity</label>
+                                    <div class="col-md-8">
+                                        <input type="text" id="create-entity" class="form-control"
+                                               v-model="create.entity" required>
+                                        <div class="invalid-feedback">
+                                            This field is required and must be a valid entity name.
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="form-inline">
+                                    <label for="create-operation" class="col-md-4 col-form-label">Operation</label>
+                                    <div class="col-md-8">
+                                        <input type="text" id="create-operation" class="form-control"
+                                               v-model="create.operation" required>
+                                        <div class="invalid-feedback">
+                                            This field is required and must be a valid operation name.
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Discard</button>
+                        <button type="button" class="btn btn-primary" v-on:click="createPermission">Create</button>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
+
 {% endblock %}
 
 {% block script %}
     <script>
-    new Vue({
-        el: '#vm',
-        data: {
-            permissions: []
-        },
-        mounted(){
-            axios.get('/api/permission/all')
-                .then(response => {
-                    this.permissions = response.data;
-                })
-        }
-    })
+        new Vue({
+            el: '#vm',
+            data: {
+                permissions: [],
+                create: {
+                    name: '',
+                    entity: '',
+                    operation: ''
+                }
+            },
+            methods: {
+                createPermission: function () {
+                    const $form = $('#form-create');
+                    $form.addClass('was-validated');
+                    if ($form[0].checkValidity()){
+                        const url = "/api/permission/create";
+                        const params = this.create;
+
+                        axios.post(url, params)
+                            .then(response => {
+                                this.permissions.push({
+                                    name: params.name,
+                                    entity: params.entity,
+                                    operation: params.operation
+                                })
+                            })
+                    }
+                }
+            },
+            mounted() {
+                axios.get('/api/permission/all')
+                    .then(response => {
+                        this.permissions = response.data;
+                    })
+            }
+        })
     </script>
 
     <script>

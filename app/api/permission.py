@@ -1,7 +1,7 @@
 from flask import Blueprint, jsonify, request
 
 from app.models.role import columns as role_columns
-from models.permission import all_permissions, columns, get_roles
+from models.permission import all_permissions, columns, get_roles, create as create_permission
 
 bp = Blueprint('api.permission', __name__, url_prefix='/api/permission')
 
@@ -23,3 +23,16 @@ def get_users():
     for role in roles:
         result.append(dict(zip(role_columns, role)))
     return jsonify(result), 200
+
+
+@bp.route('/create', methods=["POST"])
+def create():
+    data = request.get_json()
+    name = data['name']
+    entity = data['entity']
+    operation = data['operation']
+    # TODO: Validate
+
+    permission_id = create_permission(name, entity, operation)
+    response = {'permission_id': permission_id}
+    return jsonify(response), 201
