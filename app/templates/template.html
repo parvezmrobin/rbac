@@ -66,7 +66,7 @@
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" id="nav-role" href="#">
+                    <a class="nav-link" id="nav-role" href="{{ url_for('role.index') }}">
                         <span data-feather="briefcase"></span>
                         Roles
                     </a>
@@ -107,10 +107,7 @@
 
 {% block script %}{% endblock %}
 
-<script>
-    $(document).ready(function () {
-        if (typeof nav !== 'undefined') $('#' + nav).addClass('active');
-    })
-</script>
+<!-- Custom JavaScript -->
+<script src="{{ url_for('static', filename='js/site.js') }}"></script>
 </body>
 </html>

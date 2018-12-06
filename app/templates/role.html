@@ -1,0 +1,54 @@
+{% extends 'template.html' %}
+
+{% block content %}
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col">
+                <h1 class="text-center">Roles</h1>
+            </div>
+        </div>
+        <div class="row" id="vm">
+            <div class="col table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                    <tr>
+                        <th>Role</th>
+                        <th>Edit</th>
+                        <th>Delete</th>
+                    </tr>
+                    </thead>
+{#                    TODO: Implement User edit and delete#}
+                    {% raw %}
+                        <tr v-for="role in roles">
+                            <td>{{ role.role.capitalize() }}</td>
+                            <td><a href="#">Edit</a></td>
+                            <td><a href="#">Delete</a></td>
+                        </tr>
+                    {% endraw %}
+                </table>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block script %}
+    <script>
+    new Vue({
+        el: '#vm',
+        data: {
+            roles: []
+        },
+        mounted(){
+            axios.get('/api/role/all')
+                .then(response => {
+                    this.roles = response.data;
+                })
+        }
+    })
+    </script>
+
+    <script>
+        const nav = 'nav-role'
+    </script>
+
+{% endblock %}
