@@ -3,7 +3,7 @@ from flask import Blueprint, jsonify, request
 from app.models.role import columns as role_columns
 from models.permission import index as index_permission, columns, get_roles, create as create_permission
 
-bp = Blueprint('api.permission', __name__, url_prefix='/api/permission')
+bp = Blueprint('api.v1.permission', __name__, url_prefix='/api/v1/permission')
 
 
 @bp.route('/all', methods=["GET"])

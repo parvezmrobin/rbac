@@ -170,7 +170,7 @@
                     const $form = $('#form-create');
                     $form.addClass('was-validated');
                     if ($form[0].checkValidity()) {
-                        const url = "/api/permission/create";
+                        const url = "/api/v1/permission/create";
                         const params = this.permission;
 
                         axios.post(url, params)
@@ -200,7 +200,7 @@
                 }
             },
             mounted() {
-                axios.get('/api/permission/all')
+                axios.get('/api/v1/permission/all')
                     .then(response => {
                         this.permissions = response.data;
                     })

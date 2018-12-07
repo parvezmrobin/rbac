@@ -39,7 +39,7 @@
             roles: []
         },
         mounted(){
-            axios.get('/api/role/all')
+            axios.get('/api/v1/role/all')
                 .then(response => {
                     this.roles = response.data;
                 })

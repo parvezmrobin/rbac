@@ -3,7 +3,7 @@ from flask import Blueprint, jsonify, request
 from app.models.role import index as index_role, columns
 from app.models.user import columns as user_columns
 
-bp = Blueprint('api.role', __name__, url_prefix='/api/role')
+bp = Blueprint('api.v1.role', __name__, url_prefix='/api/v1/role')
 
 
 @bp.route('/all', methods=["GET"])
