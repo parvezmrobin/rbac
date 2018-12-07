@@ -1,9 +1,10 @@
 import functools
 
 from flask import Blueprint, flash, redirect, render_template, request, url_for, session, g
-from werkzeug.security import check_password_hash, generate_password_hash
+from werkzeug.security import check_password_hash
 
 from app.db import get_db
+from app.models import user as user_model
 
 true, false, null = True, False, None
 
@@ -34,7 +35,7 @@ def register():
         if not errors:
             user = db.execute(
                 'SELECT id FROM user WHERE username = ?', (username,)
-             ).fetchone()
+            ).fetchone()
             if user is not null:
                 errors['username'] = f'Username {username} is already taken.'
             user = db.execute(
@@ -44,11 +45,7 @@ def register():
                 errors['email'] = f'Email {email} is already taken.'
 
         if not errors:
-            db.execute(
-                'INSERT INTO user (first_name, last_name, email, username, password) VALUES (?, ?, ?, ?, ?)',
-                (first_name, last_name, email, username, generate_password_hash(password))
-            )
-            db.commit()
+            user_model.create(username, password, first_name, last_name, email)
             return redirect(url_for('auth.login'))
 
         flash(errors)
@@ -60,7 +57,7 @@ def login():
     if request.method == "POST":
         username = request.form['username']
         password = request.form['password']
-        db = get_db()
+
         error = user = null
 
         if not username:
@@ -68,9 +65,7 @@ def login():
         elif not password:
             error = 'Password is required.'
         else:
-            user = db.execute(
-                'SELECT * FROM user WHERE username = ?', (username,)
-            ).fetchone()
+            user = user_model.where_one(username=username)
 
             if user is null:
                 error = 'Incorrect username.'

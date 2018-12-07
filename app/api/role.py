@@ -1,6 +1,6 @@
 from flask import Blueprint, jsonify, request
 
-from app.models.role import index, columns
+from app.models.role import index as index_role, columns
 from app.models.user import columns as user_columns
 
 bp = Blueprint('api.role', __name__, url_prefix='/api/role')
@@ -8,7 +8,7 @@ bp = Blueprint('api.role', __name__, url_prefix='/api/role')
 
 @bp.route('/all', methods=["GET"])
 def index():
-    rows = index()
+    rows = index_role()
     results = []
     for row in rows:
         results.append(dict(zip(columns, row)))
