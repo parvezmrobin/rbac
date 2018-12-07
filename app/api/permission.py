@@ -1,14 +1,14 @@
 from flask import Blueprint, jsonify, request
 
 from app.models.role import columns as role_columns
-from models.permission import all_permissions, columns, get_roles, create as create_permission
+from models.permission import index, columns, get_roles, create as create_permission
 
 bp = Blueprint('api.permission', __name__, url_prefix='/api/permission')
 
 
 @bp.route('/all', methods=["GET"])
 def index():
-    rows = all_permissions()
+    rows = index()
     results = []
     for row in rows:
         results.append(dict(zip(columns, row)))
