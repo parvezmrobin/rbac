@@ -1,4 +1,5 @@
 from flask import Flask
+from flask_jwt import JWT
 
 true, false, null = True, False, None
 
@@ -18,6 +19,9 @@ def create_app(test_config=null):
 
     from .db import init_app
     init_app(app)
+
+    from app.api import auth as auth_api
+    JWT(app, auth_api.verify, auth_api.identity)
 
     from . import auth, blog, user, role, permission
     from .models import user as user_model, role as role_model
