@@ -59,3 +59,11 @@ hr.success {
     width: 1rem;
     vertical-align: text-bottom;
 }
+
+.table td, .table th{
+    padding: .5rem
+}
+
+[v-cloak] {
+    display: none;
+}

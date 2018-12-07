@@ -1,9 +1,7 @@
 {% extends 'template.html' %}
 
 {% block style %}
-    <style xmlns:v-on="http://www.w3.org/1999/xhtml" xmlns:v-on="http://www.w3.org/1999/xhtml"
-           xmlns:v-on="http://www.w3.org/1999/xhtml" xmlns:v-on="http://www.w3.org/1999/xhtml"
-           xmlns:v-on="http://www.w3.org/1999/xhtml">
+    <style xmlns:v-on="http://www.w3.org/1999/xhtml">
         h1 .btn {
             height: 3rem;
         }
@@ -15,13 +13,12 @@
 {% endblock %}
 
 {% block content %}
-    <div class="container-fluid pt-3" id="vm">
+    <div class="container-fluid pt-3" id="vm" v-cloak>
         <div class="row">
             <div class="col">
                 <h1 class="text-center">
                     Permission
-                    <button type="button" class="btn btn-primary float-right" data-toggle="modal"
-                            data-target="#modal-create">
+                    <button type="button" class="btn btn-primary float-right" v-on:click="showCreate">
                         Create Permission
                     </button>
                 </h1>
@@ -41,12 +38,12 @@
                     </thead>
                     {#                    TODO: Implement User edit and delete#}
                     {% raw %}
-                    <tr v-for="permission in permissions">
+                    <tr v-for="(permission, i) in permissions">
                         <td>{{ permission.name.capitalize() }}</td>
                         <td>{{ permission.entity.capitalize() }}</td>
                         <td>{{ permission.operation.capitalize() }}</td>
-                        <td><a href="#">Edit</a></td>
-                        <td><a href="#">Delete</a></td>
+                        <td><a href="#" class="btn btn-outline-info" v-on:click="showEdit(i)">Edit</a></td>
+                        <td><a href="#" class="btn btn-outline-danger" v-on:click="showRemove(i)">Delete</a></td>
                     </tr>
                     {% endraw %}
                 </table>
@@ -55,12 +52,14 @@
 
 
         <!-- Modal -->
-        <div class="modal fade" id="modal-create" tabindex="-1" role="dialog" aria-labelledby="modal-create-label"
+        <div class="modal fade" id="modal-create" tabindex="-1" role="dialog" aria-labelledby="modal-delete-label"
              aria-hidden="true">
             <div class="modal-dialog" role="document">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5 class="modal-title" id="exampleModalLabel">Create Permission</h5>
+                        <h5 class="modal-title" id="exampleModalLabel">
+                            <span v-text="operation"></span> Permission
+                        </h5>
                         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                             <span aria-hidden="true">&times;</span>
                         </button>
@@ -69,18 +68,19 @@
                         <form class="needs-validation" id="form-create">
                             <div class="form-group">
                                 <div class="form-inline">
-                                    <label for="create-name" class="col-md-4 col-form-label">Name</label>
+                                    <label for="name" class="col-md-4 col-form-label">Name</label>
                                     <div class="col-md-8">
-                                        <input type="text" id="create-name" class="form-control" v-model="create.name">
+                                        <input type="text" id="name" class="form-control"
+                                               v-model="permission.name" required>
                                     </div>
                                 </div>
                             </div>
                             <div class="form-group">
                                 <div class="form-inline">
-                                    <label for="create-entity" class="col-md-4 col-form-label">Entity</label>
+                                    <label for="entity" class="col-md-4 col-form-label">Entity</label>
                                     <div class="col-md-8">
-                                        <input type="text" id="create-entity" class="form-control"
-                                               v-model="create.entity" required>
+                                        <input type="text" id="entity" class="form-control"
+                                               v-model="permission.entity" required>
                                         <div class="invalid-feedback">
                                             This field is required and must be a valid entity name.
                                         </div>
@@ -89,10 +89,10 @@
                             </div>
                             <div class="form-group">
                                 <div class="form-inline">
-                                    <label for="create-operation" class="col-md-4 col-form-label">Operation</label>
+                                    <label for="operation" class="col-md-4 col-form-label">Operation</label>
                                     <div class="col-md-8">
-                                        <input type="text" id="create-operation" class="form-control"
-                                               v-model="create.operation" required>
+                                        <input type="text" id="operation" class="form-control"
+                                               v-model="permission.operation" required>
                                         <div class="invalid-feedback">
                                             This field is required and must be a valid operation name.
                                         </div>
@@ -103,7 +103,28 @@
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-dismiss="modal">Discard</button>
-                        <button type="button" class="btn btn-primary" v-on:click="createPermission">Create</button>
+                        <button type="button" class="btn btn-primary" v-on:click="doOperation"
+                                v-text="operation"></button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal" tabindex="-1" role="dialog" id="modal-delete">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Delete Permission</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <p>Are your sure to delete permission '<span v-text="permission.name"></span>'?</p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-primary" data-dismiss="modal">Nope</button>
+                        <button type="button" class="btn btn-outline-danger" v-on:click="remove()">Delete</button>
                     </div>
                 </div>
             </div>
@@ -118,19 +139,39 @@
             el: '#vm',
             data: {
                 permissions: [],
-                create: {
+                permission: {
                     name: '',
                     entity: '',
                     operation: ''
-                }
+                },
+                operation: 'Create'
             },
             methods: {
+                doOperation: function () {
+                    if (this.operation === 'Create') {
+                        this.createPermission()
+                    } else {
+                        this.editPermission()
+                    }
+                },
+                resetPermission: function () {
+                    this.permission = {
+                        name: '',
+                        entity: '',
+                        operation: ''
+                    }
+                },
+                showCreate: function () {
+                    this.resetPermission();
+                    this.operation = 'Create';
+                    $('#modal-create').modal()
+                },
                 createPermission: function () {
                     const $form = $('#form-create');
                     $form.addClass('was-validated');
-                    if ($form[0].checkValidity()){
+                    if ($form[0].checkValidity()) {
                         const url = "/api/permission/create";
-                        const params = this.create;
+                        const params = this.permission;
 
                         axios.post(url, params)
                             .then(response => {
@@ -138,9 +179,24 @@
                                     name: params.name,
                                     entity: params.entity,
                                     operation: params.operation
-                                })
+                                });
                             })
                     }
+                },
+                showEdit: function (i) {
+                    this.permission = this.permissions[i];
+                    this.operation = 'Edit';
+                    $('#modal-create').modal();
+                },
+                editPermission: function () {
+                {#    TODO: Implement edit permission #}
+                },
+                showRemove: function (i) {
+                    this.permission = this.permissions[i];
+                    $('#modal-delete').modal();
+                },
+                remove: function () {
+
                 }
             },
             mounted() {
