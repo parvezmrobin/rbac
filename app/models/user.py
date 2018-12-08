@@ -39,13 +39,22 @@ def where(**kwargs):
     return result
 
 
-def where_one(**kwargs):
+def where_first(**kwargs):
     cursor = _where(**kwargs)
     result = cursor.fetchone()
     return result
 
 
 def create(username, password, first_name, last_name, email):
+    """
+    Creates new user account
+    :param username:
+    :param password:
+    :param first_name:
+    :param last_name:
+    :param email:
+    :return: [int] user.id
+    """
     db = get_db()
     hashed_password = generate_password_hash(password)
     query = "INSERT INTO user(username, password, first_name, last_name, email) values (?, ?, ?, ?, ?)"

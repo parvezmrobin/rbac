@@ -24,18 +24,22 @@ def create_app(test_config=null):
     JWT(app, auth_api.verify, auth_api.identity)
 
     from . import auth, blog, user, role, permission
-    from .models import user as user_model, role as role_model
-    from .api import user as user_api, role as role_api, permission as permission_api
     app.register_blueprint(auth.bp)
     app.register_blueprint(blog.bp)
     app.register_blueprint(user.bp)
     app.register_blueprint(role.bp)
+
+    from .models import user as user_model, role as role_model
     app.register_blueprint(permission.bp)
     app.register_blueprint(user_model.bp)
     app.register_blueprint(role_model.bp)
+
+    from .api import user as user_api, auth as auth_api, role as role_api, permission as permission_api
     app.register_blueprint(user_api.bp)
+    app.register_blueprint(auth_api.bp)
     app.register_blueprint(role_api.bp)
     app.register_blueprint(permission_api.bp)
+
     app.add_url_rule('/', endpoint='index')
 
     return app

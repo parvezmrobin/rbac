@@ -65,7 +65,7 @@ def login():
         elif not password:
             error = 'Password is required.'
         else:
-            user = user_model.where_one(username=username)
+            user = user_model.where_first(username=username)
 
             if user is null:
                 error = 'Incorrect username.'
