@@ -1,3 +1,5 @@
+from datetime import timedelta
+
 from flask import Flask
 from flask_jwt import JWT
 
@@ -9,7 +11,9 @@ def create_app(test_config=null):
     app = Flask(__name__)
     app.config.from_mapping(
         SECRET_KEY='dev',
-        DATABASE='rbac.sqlite'
+        DATABASE='rbac.sqlite',
+        JWT_AUTH_URL_RULE='/api/v1/login',
+        JWT_EXPIRATION_DELTA=timedelta(weeks=10),
     )
 
     if test_config is null:
