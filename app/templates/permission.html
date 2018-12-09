@@ -5,10 +5,6 @@
         h1 .btn {
             height: 3rem;
         }
-
-        form label.col-form-label {
-            justify-content: flex-end;
-        }
     </style>
 {% endblock %}
 
@@ -18,7 +14,7 @@
             <div class="col">
                 <h1 class="text-center">
                     Permission
-                    <button type="button" class="btn btn-primary float-right" v-on:click="showCreate">
+                    <button type="button" class="btn btn-primary float-sm-right" v-on:click="showCreate">
                         Create Permission
                     </button>
                 </h1>
@@ -66,36 +62,30 @@
                     </div>
                     <div class="modal-body">
                         <form class="needs-validation" id="form-create">
-                            <div class="form-group">
-                                <div class="form-inline">
-                                    <label for="name" class="col-md-4 col-form-label">Name</label>
-                                    <div class="col-md-8">
-                                        <input type="text" id="name" class="form-control"
-                                               v-model="permission.name" required>
+                            <div class="form-group row">
+                                <label for="name" class="col-md-4 col-form-label">Name</label>
+                                <div class="col-md-8">
+                                    <input type="text" id="name" class="form-control"
+                                           v-model="permission.name" required>
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label for="entity" class="col-md-4 col-form-label">Entity</label>
+                                <div class="col-md-8">
+                                    <input type="text" id="entity" class="form-control"
+                                           v-model="permission.entity" required>
+                                    <div class="invalid-feedback">
+                                        This field is required and must be a valid entity name.
                                     </div>
                                 </div>
                             </div>
-                            <div class="form-group">
-                                <div class="form-inline">
-                                    <label for="entity" class="col-md-4 col-form-label">Entity</label>
-                                    <div class="col-md-8">
-                                        <input type="text" id="entity" class="form-control"
-                                               v-model="permission.entity" required>
-                                        <div class="invalid-feedback">
-                                            This field is required and must be a valid entity name.
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="form-group">
-                                <div class="form-inline">
-                                    <label for="operation" class="col-md-4 col-form-label">Operation</label>
-                                    <div class="col-md-8">
-                                        <input type="text" id="operation" class="form-control"
-                                               v-model="permission.operation" required>
-                                        <div class="invalid-feedback">
-                                            This field is required and must be a valid operation name.
-                                        </div>
+                            <div class="form-group row">
+                                <label for="operation" class="col-md-4 col-form-label">Operation</label>
+                                <div class="col-md-8">
+                                    <input type="text" id="operation" class="form-control"
+                                           v-model="permission.operation" required>
+                                    <div class="invalid-feedback">
+                                        This field is required and must be a valid operation name.
                                     </div>
                                 </div>
                             </div>
@@ -190,7 +180,7 @@
                     $('#modal-create').modal();
                 },
                 editPermission: function () {
-                {#    TODO: Implement edit permission #}
+                    {#    TODO: Implement edit permission #}
                 },
                 showRemove: function (i) {
                     this.permission = this.permissions[i];
