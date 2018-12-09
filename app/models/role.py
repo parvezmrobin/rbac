@@ -39,7 +39,7 @@ def get_users(role):
     query = "SELECT user.id, first_name, last_name, email, username FROM role " \
             "inner join role_user on role.role = role_user.role " \
             "inner join user on role_user.user_id = user.id where role.role=?"
-    result = db.execute(query, (role,)).fetchone()
+    result = db.execute(query, (role,)).fetchall()
     return result
 
 

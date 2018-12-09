@@ -1,51 +1,166 @@
 {% extends 'template.html' %}
 
+{% block style %}
+    <style>
+        .nav-pills .nav-link {
+            transition: color, background-color 1s;
+        }
+    </style>
+{% endblock %}
 {% block content %}
-    <div class="container-fluid">
+    <div class="container-fluid pt-3">
         <div class="row">
             <div class="col">
                 <h1 class="text-center">Roles</h1>
             </div>
         </div>
-        <div class="row">
+        <div class="form-row">
+            <div class="col-lg-2 col-md-4 my-2 text-center text-md-left">
+                <a class="btn btn-primary" href="#">
+                    <span data-feather="plus-square"></span>
+                    Create Role
+                </a>
+            </div>
+            <div class="col-lg-4 col-md-8 my-2">
+                <div class="input-group">
+                    <div class="input-group-prepend">
+                        <label for="role" class="input-group-text">Role</label>
+                    </div>
+                    <select class="form-control" v-model="role" v-on:change="roleChanged" name="role" id="role">
+                        <option v-for="role in roles" :value="role.role" v-text="role.role.capitalize()"></option>
+                    </select>
+                </div>
+            </div>
+            <div class="col-lg-6 d-inline-flex justify-content-lg-end justify-content-center my-2">
+                <div class="btn-group">
+                    <a class="btn btn-outline-info" href="#">
+                        <span data-feather="edit"></span>
+                        Edit
+                    </a>
+                    <a class="btn btn-outline-danger" href="#">
+                        <span data-feather="delete"></span>
+                        Delete
+                    </a>
+                    <a class="btn btn-outline-success" href="#">
+                        <span data-feather="user-plus"></span>
+                        Add User
+                    </a>
+                    <a class="btn btn-outline-success" href="#">
+                        <span data-feather="file-plus"></span>
+                        Add Permission
+                    </a>
+                </div>
+            </div>
+
+        </div>
+        <div class="row" v-show="role">
             <div class="col table-responsive">
-                <table class="table table-hover">
-                    <thead>
-                    <tr>
-                        <th>Role</th>
-                        <th>Edit</th>
-                        <th>Delete</th>
-                    </tr>
-                    </thead>
-{#                    TODO: Implement User edit and delete#}
-                    {% raw %}
-                        <tr v-for="role in roles">
-                            <td>{{ role.role.capitalize() }}</td>
-                            <td><a href="#">Edit</a></td>
-                            <td><a href="#">Delete</a></td>
-                        </tr>
-                    {% endraw %}
-                </table>
+
+                <ul class="nav nav-pills py-3">
+                    <li class="nav-item">
+                        <a class="nav-link active" data-toggle="pill" href="#pills-permission">
+                            Permissions
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" data-toggle="pill" href="#pills-user">
+                            Users
+                        </a>
+                    </li>
+
+                    <li class="navbar-text pl-2" v-if="role">
+                        <em>of role <span v-text="role.capitalize()"></span></em>
+                    </li>
+                </ul>
+
+                <div class="tab-content">
+                    <div class="tab-pane fade show active" id="pills-permission">
+                        <table class="table">
+                            <thead>
+                            <tr>
+                                <th>Permission</th>
+                                <th>Entity</th>
+                                <th>Operation</th>
+                                <th></th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr v-for="permission in permissions">
+                                <td v-text="permission.name.capitalize()"></td>
+                                <td v-text="permission.entity.capitalize()"></td>
+                                <td v-text="permission.operation.capitalize()"></td>
+                                <td>
+                                    <button class="btn btn-outline-warning">Remove</button>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="tab-pane fade" id="pills-user">
+                        <table class="table">
+                            <thead>
+                            <tr>
+                                <th>First Name</th>
+                                <th>Last Name</th>
+                                <th>Username</th>
+                                <th>Email</th>
+                                <th></th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr v-for="user in users">
+                                <td v-text="user.first_name"></td>
+                                <td v-text="user.last_name"></td>
+                                <td v-text="user.username"></td>
+                                <td>
+                                    <a :href="'mailto:' + user.email" v-text="user.email"></a>
+                                </td>
+                                <td>
+                                    <button class="btn btn-outline-warning">Remove</button>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
+
 {% endblock %}
 
 {% block script %}
     <script>
-    new Vue({
-        el: '#vm',
-        mixins: [mixin],
-        data: {
-            roles: []
-        },
-        mounted(){
-            axios.get('/api/v1/role/all')
-                .then(response => {
-                    this.roles = response.data;
-                })
-        }
-    })
+        new Vue({
+            el: '#vm',
+            mixins: [mixin],
+            data: {
+                roles: [],
+                role: undefined,
+                permissions: [],
+                permission: undefined,
+                users: [],
+                user: undefined,
+                showUser: false,
+            },
+            methods: {
+                roleChanged: function () {
+                    request.get('role/' + this.role + '/permissions').then(r => {
+                        this.permissions = r.data;
+                    });
+
+                    request.get('role/' + this.role + '/users').then(r => {
+                        this.users = r.data;
+                    });
+                }
+            },
+            mounted() {
+                request.get('/role/all')
+                    .then(response => {
+                        this.roles = response.data;
+                    })
+            }
+        })
     </script>
 
     <script>
