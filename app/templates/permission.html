@@ -132,7 +132,8 @@
                     entity: '',
                     operation: ''
                 },
-                operation: 'Create'
+                i: -1,
+                operation: 'Create',
             },
             methods: {
                 doOperation: function () {
@@ -155,8 +156,6 @@
                     $('#modal-create').modal()
                 },
                 createPermission: function () {
-                    const $form = $('#form-create');
-
                     const url = "permission/create";
                     const params = this.permission;
 
@@ -177,19 +176,43 @@
 
                 },
                 showEdit: function (i) {
-                    this.permission = this.permissions[i];
+                    this.permission = Object.assign({}, this.permissions[i]);
                     this.operation = 'Edit';
+                    this.i = i;
                     $('#modal-create').modal();
                 },
                 editPermission: function () {
-                    {#    TODO: Implement edit permission #}
+                    const url = "permission/" + this.permission.id;
+                    const params = this.permission;
+
+                    request.put(url, params)
+                        .then(response => {
+                            this.permissions.splice(this.i, 1, this.permission);
+
+                            $('input').removeClass(['is-valid', 'is-invalid']);
+                            $('#modal-create').modal('hide');
+                        })
+                        .catch(err => {
+                            this.handleError(err.response);
+                        })
                 },
                 showRemove: function (i) {
-                    this.permission = this.permissions[i];
-                    $('#modal-delete').modal();
+                    this.permission = Object.assign({}, this.permissions[i]);
+                    this.i = i;
+                    $('#modal-delete').modal('show');
                 },
                 remove: function () {
+                    const url = "permission/" + this.permission.id;
 
+                    request.delete(url)
+                        .then(response => {
+                            this.permissions.splice(this.i, 1);
+
+                            $('#modal-delete').modal('hide');
+                        })
+                        .catch(err => {
+                            console.err(err);
+                        })
                 },
                 handleError: function (response) {
                     const errors = response.data;
