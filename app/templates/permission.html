@@ -1,7 +1,7 @@
 {% extends 'template.html' %}
 
 {% block style %}
-    <style xmlns:v-on="http://www.w3.org/1999/xhtml">
+    <style>
         h1 .btn {
             height: 3rem;
         }
@@ -13,7 +13,7 @@
 {% endblock %}
 
 {% block content %}
-    <div class="container-fluid pt-3" id="vm" v-cloak>
+    <div class="container-fluid pt-3" xmlns:v-on="http://www.w3.org/1999/xhtml">
         <div class="row">
             <div class="col">
                 <h1 class="text-center">
@@ -137,6 +137,7 @@
     <script>
         new Vue({
             el: '#vm',
+            mixins: [mixin],
             data: {
                 permissions: [],
                 permission: {

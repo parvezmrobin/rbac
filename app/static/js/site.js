@@ -50,7 +50,7 @@ function getCookie(cname) {
     }
 
     window.request = axios.create({
-        baseURL: 'api/v1/',
+        baseURL: '/api/v1/',
         headers: {
             Authorization: 'JWT ' + token
         }
@@ -60,12 +60,16 @@ function getCookie(cname) {
 const mixin = {
     data: function () {
         return {
-            user: {}
+            user: null,
         }
     },
     methods: {
         logout: function () {
+            document.cookie = "token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+            localStorage.removeItem('token');
+            sessionStorage.removeItem('token');
 
+            openUrl('/auth/login')
         }
     },
     mounted() {

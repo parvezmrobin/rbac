@@ -7,7 +7,7 @@
                 <h1 class="text-center">Roles</h1>
             </div>
         </div>
-        <div class="row" id="vm">
+        <div class="row">
             <div class="col table-responsive">
                 <table class="table table-hover">
                     <thead>
@@ -35,6 +35,7 @@
     <script>
     new Vue({
         el: '#vm',
+        mixins: [mixin],
         data: {
             roles: []
         },
