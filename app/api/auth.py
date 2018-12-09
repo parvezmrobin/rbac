@@ -1,7 +1,8 @@
 from flask import Blueprint, request, jsonify
+from flask_jwt import jwt_required, current_identity
 from werkzeug.security import check_password_hash
 
-from app.models.user import where_first, create
+from app.models.user import where_first, create, read, columns
 
 bp = Blueprint('api.v1.auth', __name__, url_prefix="/api/v1/auth")
 
@@ -22,6 +23,15 @@ def verify(username, password):
 def identity(payload):
     user_id = payload['identity']
     return {'user_id': user_id}
+
+
+@bp.route("/user", methods=["GET"])
+@jwt_required()
+def user():
+    user_id = current_identity['user_id']
+    user = read(user_id)
+    response = dict(zip(columns, user))
+    return jsonify(response)
 
 
 @bp.route("/register", methods=["POST"])

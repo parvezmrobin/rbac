@@ -19,71 +19,74 @@
 
 <body>
 
-<nav class="navbar navbar-expand-sm navbar-dark bg-dark fixed-top">
-    <a class="navbar-brand" href="{{ url_for('index') }}">RBAC</a>
-    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbar-rbac"
-            aria-controls="navbar-rbac" aria-expanded="false" aria-label="Toggle navigation">
-        <span class="navbar-toggler-icon"></span>
-    </button>
-    <div class="collapse navbar-collapse" id="navbar-rbac">
-        <form class="form-inline w-100">
-            <input class="form-control search w-100 mx-md-3" type="text" placeholder="Search" aria-label="Search">
-        </form>
+<div class="container-fluid" id="vm">
+    <nav class="navbar navbar-expand-sm navbar-dark bg-dark fixed-top">
+        <a class="navbar-brand" href="{{ url_for('index') }}">RBAC</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbar-rbac"
+                aria-controls="navbar-rbac" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbar-rbac">
+            <form class="form-inline w-100">
+                <input class="form-control search w-100 mx-md-3" type="text" placeholder="Search" aria-label="Search">
+            </form>
 
-        <ul class="navbar-nav ml-auto">
-            {% if g.user %}
-                <li class="nav-item text-nowrap pr-2">
-                    <span class="navbar-text">Hi {{ g.user['username'] }}!</span>
-                </li>
-                <li class="nav-item text-nowrap">
-                    <a class="nav-link" href="{{ url_for('auth.logout') }}">Logout</a>
-                </li>
-            {% else %}
-                <li class="nav-item text-nowrap">
-                    <a class="nav-link" href="{{ url_for('auth.login') }}">Login</a>
-                </li>
-                <li class="nav-item text-nowrap">
-                    <a class="nav-link" href="{{ url_for('auth.register') }}">Register</a>
-                </li>
-            {% endif %}
-        </ul>
-    </div>
-</nav>
-
-<div class="container-fluid mt-5 pt-2">
-    <div class="row">
-        <nav class="col-md-3 col-lg-2 mt-5" id="sidebar">
-            <ul class="nav flex-column">
-                <li class="nav-item">
-                    <a class="nav-link" id="nav-dash" href="{{ url_for('blog.index') }}">
-                        <span data-feather="home"></span>
-                        Dashboard
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" id="nav-user" href="{{ url_for('user.index') }}">
-                        <span data-feather="user"></span>
-                        Users
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" id="nav-role" href="{{ url_for('role.index') }}">
-                        <span data-feather="briefcase"></span>
-                        Roles
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" id="nav-permission" href="{{ url_for('permission.index') }}">
-                        <span data-feather="globe"></span>
-                        Permissions
-                    </a>
-                </li>
+            <ul class="navbar-nav ml-auto">
+                <template v-if="user">
+                    <li class="nav-item text-nowrap pr-2">
+                        <span class="navbar-text">Hi <span v-text="user.username"></span>!</span>
+                    </li>
+                    <li class="nav-item text-nowrap">
+                        <a class="nav-link" v-on:click="logout" href="#">Logout</a>
+                    </li>
+                </template>
+                <template v-else>
+                    <li class="nav-item text-nowrap">
+                        <a class="nav-link" href="{{ url_for('auth.login') }}">Login</a>
+                    </li>
+                    <li class="nav-item text-nowrap">
+                        <a class="nav-link" href="{{ url_for('auth.register') }}">Register</a>
+                    </li>
+                </template>
             </ul>
-        </nav>
+        </div>
+    </nav>
 
-        <main role="main" class="col-md-9 col-lg-10 px-5">
-            {% block content %}{% endblock %}
-        </main>
+    <div class="container-fluid mt-5 pt-2">
+        <div class="row">
+            <nav class="col-md-3 col-lg-2 mt-5" id="sidebar">
+                <ul class="nav flex-column">
+                    <li class="nav-item">
+                        <a class="nav-link" id="nav-dash" href="{{ url_for('blog.index') }}">
+                            <span data-feather="home"></span>
+                            Dashboard
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" id="nav-user" href="{{ url_for('user.index') }}">
+                            <span data-feather="user"></span>
+                            Users
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" id="nav-role" href="{{ url_for('role.index') }}">
+                            <span data-feather="briefcase"></span>
+                            Roles
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" id="nav-permission" href="{{ url_for('permission.index') }}">
+                            <span data-feather="globe"></span>
+                            Permissions
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+
+            <main role="main" class="col-md-9 col-lg-10 px-5">
+                {% block content %}{% endblock %}
+            </main>
+        </div>
     </div>
 </div>
 
@@ -95,7 +98,7 @@
 <script src="{{ url_for('static', filename='js/vue.js') }}"></script>
 
 <!-- axios JS -->
-<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+<script src="{{ url_for('static', filename='js/axios.min.js') }}"></script>
 
 <!-- Icons -->
 <script src="{{ url_for('static', filename='js/feather.min.js') }}"></script>
@@ -106,9 +109,16 @@
 <!-- Graphs -->
 <script src="{{ url_for('static', filename='js/Chart.bundle.min.js') }}"></script>
 
-{% block script %}{% endblock %}
-
 <!-- Custom JavaScript -->
 <script src="{{ url_for('static', filename='js/site.js') }}"></script>
+
+{% block script %}{% endblock %}
+
+<script>
+    $(document).ready(function () {
+        if (typeof nav !== 'undefined') $('#' + nav).addClass('active');
+    });
+</script>
+
 </body>
 </html>

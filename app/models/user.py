@@ -17,7 +17,7 @@ def index():
 
 def read(user_id):
     db = get_db()
-    query = "SELECT * FROM user where id=?"
+    query = "SELECT id, first_name, last_name, email, username FROM user where id=?"
     result = db.execute(query, (user_id,)).fetchone()
     return result
 

@@ -10,9 +10,6 @@ function openUrl(url) {
     a.click();
 }
 
-$(document).ready(function () {
-    if (typeof nav !== 'undefined') $('#' + nav).addClass('active');
-});
 
 function getCookie(cname) {
     const name = cname + "=";
@@ -34,17 +31,48 @@ function getCookie(cname) {
     if (window.location.pathname.indexOf("auth") !== -1) {
         return;
     }
+    let token;
     if (typeof Storage === 'undefined') {
-        window.access_token = getCookie('token')
+        token = getCookie('token')
     } else {
-        let token = localStorage.getItem('token');
+        token = localStorage.getItem('token');
         if (token === null) {
-           token = sessionStorage.getItem('token');
+            token = sessionStorage.getItem('token');
         }
-        if (token === null) {
-            openUrl('/auth/login')
-        } else {
-            window.access_token = token;
+
+    }
+
+    if (token === null) {
+        openUrl('/auth/login');
+        return;
+    } else {
+        window.access_token = token;
+    }
+
+    window.request = axios.create({
+        baseURL: 'api/v1/',
+        headers: {
+            Authorization: 'JWT ' + token
+        }
+    })
+})();
+
+const mixin = {
+    data: function () {
+        return {
+            user: {}
+        }
+    },
+    methods: {
+        logout: function () {
+
+        }
+    },
+    mounted() {
+        if (typeof request !== "undefined") {
+            request.get('auth/user').then(r => {
+                this.user = r.data;
+            })
         }
     }
-})();
+};
