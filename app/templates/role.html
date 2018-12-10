@@ -1,7 +1,7 @@
 {% extends 'template.html' %}
 
 {% block style %}
-    <style>
+    <style xmlns:v-on="http://www.w3.org/1999/xhtml">
         .nav-pills .nav-link {
             transition: color, background-color 1s;
         }
@@ -16,18 +16,19 @@
         </div>
         <div class="form-row">
             <div class="col-lg-2 col-md-4 my-2 text-center text-md-left">
-                <a class="btn btn-primary" href="#">
+                <button type="button" class="btn btn-primary" v-on:click="showCreateRole">
                     <span data-feather="plus-square"></span>
                     Create Role
-                </a>
+                </button>
             </div>
             <div class="col-lg-4 col-md-8 my-2">
                 <div class="input-group">
                     <div class="input-group-prepend">
                         <label for="role" class="input-group-text">Role</label>
                     </div>
-                    <select class="form-control" v-model="role" v-on:change="roleChanged" name="role" id="role">
-                        <option v-for="role in roles" :value="role.role" v-text="role.role.capitalize()"></option>
+                    <select class="form-control" v-model="selectedRole" v-on:change="roleChanged" name="role" id="role">
+                        <option v-for="r in roles" :value="r.role"
+                                v-text="r.role.capitalize()"></option>
                     </select>
                 </div>
             </div>
@@ -53,7 +54,7 @@
             </div>
 
         </div>
-        <div class="row" v-show="role">
+        <div class="row" v-show="selectedRole">
             <div class="col table-responsive">
 
                 <ul class="nav nav-pills py-3">
@@ -69,7 +70,7 @@
                     </li>
 
                     <li class="navbar-text pl-2" v-if="role">
-                        <em>of role <span v-text="role.capitalize()"></span></em>
+                        <em>of role <span v-text="selectedRole.capitalize()"></span></em>
                     </li>
                 </ul>
 
@@ -127,6 +128,66 @@
         </div>
     </div>
 
+    <!-- Modal -->
+    <div class="modal fade" id="modal-create-edit" tabindex="-1" role="dialog"
+         aria-labelledby="modal-create-edit-label" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        <span v-text="role.operation"></span> Role
+                    </h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form class="needs-validation" novalidate id="form-create">
+                        <div v-for="(val, key) in role.value" class="form-group row">
+                            <label :for="key" class="col-md-4 col-form-label" v-text="key.capitalize()"></label>
+                            <div class="col-md-8">
+                                <!--suppress HtmlFormInputWithoutLabel -->
+                                <input type="text" :id="key" class="form-control"
+                                       v-model="role.value[key]" required>
+                                <div class="invalid-feedback"></div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Discard</button>
+                    <button type="button" class="btn btn-primary" v-on:click="doOperation"
+                            v-text="role.operation.capitalize()"></button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="modal" tabindex="-1" role="dialog" id="modal-delete">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Delete <span v-text="remove.entity.capitalize()"></span></h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <p>
+                        Are your sure to delete
+                        <span v-text="remove.entity"></span>
+                        '<span v-text="remove.value.name"></span>'?
+                    </p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" data-dismiss="modal">Nope</button>
+                    <button type="button" class="btn btn-outline-danger" v-on:click="doRemove()">Yep</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
 {% endblock %}
 
 {% block script %}
@@ -136,22 +197,68 @@
             mixins: [mixin],
             data: {
                 roles: [],
-                role: undefined,
+                selectedRole: '',
+                role: {
+                    operation: '',
+                    value: {}
+                },
                 permissions: [],
                 permission: undefined,
                 users: [],
                 user: undefined,
                 showUser: false,
+                remove: {
+                    entity: '',
+                    operation: '',
+                    value: {}
+                },
             },
             methods: {
+                showCreateRole: function () {
+                    $('form.needs-validation').removeClass('was-validated');
+
+                    this.role = {
+                        operation: 'create',
+                        value: {
+                            'role': '',
+                        }
+                    };
+
+                    $('#modal-create-edit').modal('show');
+                },
                 roleChanged: function () {
-                    request.get('role/' + this.role + '/permissions').then(r => {
+                    request.get('role/' + this.selectedRole + '/permissions').then(r => {
                         this.permissions = r.data;
                     });
 
-                    request.get('role/' + this.role + '/users').then(r => {
+                    request.get('role/' + this.selectedRole + '/users').then(r => {
                         this.users = r.data;
                     });
+                },
+                doOperation: function () {
+                    if (this.role.operation === 'create') {
+                        this.createRole()
+                    } else {
+                        this.editRole()
+                    }
+                },
+                createRole: function() {
+                    const url = 'role/create';
+                    const params = this.role.value;
+
+                    request.post(url, params).then(r => {
+                        this.roles.splice(this.roles.length-1, 0, {
+                            role: params.role,
+                        });
+                        this.selectedRole = this.roles[this.roles.length-1].role;
+                        $('#modal-create-edit').modal('hide');
+                    })
+                },
+                editRole: function() {
+                    // TODO: implement edit role
+                },
+                doRemove: function () {
+                    
                 }
             },
             mounted() {

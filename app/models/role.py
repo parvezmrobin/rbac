@@ -16,8 +16,9 @@ def index():
 def create(role):
     db = get_db()
     query = "INSERT INTO role(role) values (?)"
-    db.execute(query, (role,))
+    cursor = db.execute(query, (role,))
     db.commit()
+    return cursor.lastrowid
 
 
 def update(old_role, new_role):

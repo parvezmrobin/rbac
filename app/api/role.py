@@ -36,3 +36,18 @@ def get_permissions(role):
     for permission in permissions:
         result.append(dict(zip(permission_columns, permission)))
     return jsonify(result), 200
+
+
+@bp.route('create', methods=["POST"])
+@jwt_required()
+def create():
+    data = request.get_json()
+    errors = {}
+    if 'role' not in data or not data['role']:
+        errors['role'] = 'Role is required.'
+    if errors:
+        return jsonify(errors), 400
+
+    role_model.create(data['role'])
+    response = {'role': data['role']}
+    return jsonify(response), 201
