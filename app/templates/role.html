@@ -46,10 +46,10 @@
                         <span data-feather="user-plus"></span>
                         Add User
                     </button>
-                    <a class="btn btn-outline-success" href="#">
+                    <button type="button" class="btn btn-outline-success"  @click="showAddPermission">
                         <span data-feather="file-plus"></span>
                         Add Permission
-                    </a>
+                    </button>
                 </div>
             </div>
 
@@ -169,14 +169,16 @@
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">Add User to role <span v-text="selectedRole.capitalize()"></span></h5>
+                    <h5 class="modal-title">Add Users to role <span v-text="selectedRole.capitalize()"></span></h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
                 <div class="modal-body">
                     <form class="needs-validation" novalidate>
+{#                        TODO: validate add users to role#}
                         <div class="form-group row">
+                            <label class="col-md-4 col-form-label">Select Users</label>
                             <div class="col-md-8">
                                 <v-select v-model="selectedUsers" multiple label="username" :close-on-select="false"
                                           :options="usersToAdd" placeholder="No User Selected">
@@ -191,7 +193,7 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-primary" data-dismiss="modal">Cancel</button>
-                    <button type="button" class="btn btn-outline-danger"
+                    <button type="button" class="btn btn-outline-success"
                             @click="addSelectedUsersToRole()">Add
                     </button>
                 </div>
@@ -200,25 +202,39 @@
     </div>
 
     <!-- Add Permission -->
-    <div class="modal" tabindex="-1" role="dialog" id="modal-delete">
+    <div class="modal" tabindex="-1" role="dialog" id="modal-add-permission">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">Delete <span v-text="remove.entity.capitalize()"></span></h5>
+                    <h5 class="modal-title">
+                        Add Permissions to role <span v-text="selectedRole.capitalize()"></span>
+                    </h5>
+
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
                 <div class="modal-body">
-                    <p>
-                        Are your sure to delete
-                        <span v-text="remove.entity"></span>
-                        '<span v-text="remove.value.name"></span>'?
-                    </p>
+                    <form class="needs-validation" novalidate>
+{#                        TODO: validate add permissions to role #}
+                        <div class="form-group row">
+                            <label class="col-md-4 col-form-label">Select Permission</label>
+                            <div class="col-md-8">
+                                <v-select v-model="selectedPermissions" multiple label="name" :close-on-select="false"
+                                          :options="permissionsToAdd" placeholder="No Permission Selected">
+                                    <template slot="option" slot-scope="option">
+                                        <span v-text="option.name">
+                                        </span>
+                                    </template>
+                                </v-select>
+                            </div>
+                        </div>
+                    </form>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-primary" data-dismiss="modal">Nope</button>
-                    <button type="button" class="btn btn-outline-danger" @click="doRemove()">Yep</button>
+                    <button type="button" class="btn btn-primary" data-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-outline-success"
+                            @click="addSelectedPermissionsToRole()">Add</button>
                 </div>
             </div>
         </div>
@@ -282,11 +298,12 @@
                 allUsers: [],       // list of all users in system
                 allPermissions: [], // list of all permissions in the system
                 selectedUsers: [],  // selected users to add role this.selectedRole
+                selectedPermissions: [],  // selected permissions to add role this.selectedRole
             },
             computed: {
                 /**
-                 * Filters out users that already have role this.selectedRole
-                 * This is achieved by removing users from this.allUsers those belongs to this.users
+                 * Filters out users that already have role this.selectedRole.
+                 * This is achieved by removing users from this.allUsers those belongs to this.users.
                  * @return {array}
                  */
                 usersToAdd: function () {
@@ -299,7 +316,24 @@
                         }
                         return true;
                     })
-                }
+                },
+                /**
+                 * Filters out permissions that already this.selectedRole has.
+                 * This is achieved by removing permissions from this.allPermissions
+                 * those belongs to this.permissions.
+                 * @return {array}
+                 */
+                permissionsToAdd: function () {
+                    return this.allPermissions.filter(permission => {
+                        for (let i = 0; i < this.permissions.length; i++) {
+                            const rolePermission = this.permissions[i];
+                            if (rolePermission.id === permission.id) {
+                                return false;
+                            }
+                        }
+                        return true;
+                    })
+                },
             },
             methods: {
                 /**
@@ -382,6 +416,29 @@
                     }
 
                     $('#modal-add-user').modal('hide');
+                },
+                showAddPermission: function () {
+                    this.selectedPermissions = [];
+                    $('#modal-add-permission').modal('show');
+                },
+                /**
+                 * Add selected permissions to role this.selectedRole
+                 */
+                addSelectedPermissionsToRole: function () {
+                    const url = '/role/' + this.selectedRole + '/permissions/add';
+                    for (let i = 0; i < this.selectedPermissions.length; i++) {
+                        const selectedPermission = this.selectedPermissions[i];
+                        const param = {permission_id: selectedPermission.id};
+                        request.post(url, param).then(r => {
+                            // find the permission with same id as selectedPermission.id
+                            const permissionToAdd = this.allPermissions
+                                .filter(user => user.id === selectedPermission.id)[0];
+                            // add it to end of this.permissions
+                            this.permissions.splice(this.users.length, 0, permissionToAdd)
+                        })
+                    }
+
+                    $('#modal-add-permission').modal('hide');
                 }
             },
             /**
@@ -397,7 +454,11 @@
                         // so that they don't slow down loading roles
                         request.get('/user/all').then(r => {
                             this.allUsers = r.data;
-                        })
+                        });
+
+                        request.get('/permission/all').then(r => {
+                            this.allPermissions = r.data;
+                        });
                     })
             }
         })

@@ -59,11 +59,11 @@ def get_permissions(role):
 @jwt_required()
 def add_permission(role):
     data = request.get_json()
-    errors = required(['permissions_id'], data)
+    errors = required(['permission_id'], data)
     # TODO: already exists check
     if errors:
         return jsonify(errors), 400
-    role_model.add_permission(role, data['permissions_id'])
+    role_model.add_permission(role, data['permission_id'])
     response = {'message': 'added'}
     return jsonify(response), 201
 
