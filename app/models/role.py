@@ -24,14 +24,14 @@ def create(role):
 def update(old_role, new_role):
     db = get_db()
     query = "UPDATE role SET role=? WHERE role=?"
-    db.execute(query, (new_role, old_role, ))
+    db.execute(query, (new_role, old_role,))
     db.commit()
 
 
 def delete(role):
     db = get_db()
     query = "DELETE FROM role where role=?"
-    db.execute(query, (role, ))
+    db.execute(query, (role,))
     db.commit()
 
 
@@ -50,7 +50,7 @@ def get_permissions(role):
             "INNER JOIN permission_role pr on permission.id = pr.permission_id " \
             "INNER JOIN role r on pr.role = r.role " \
             "WHERE r.role=?"
-    result = db.execute(query, (role, )).fetchall()
+    result = db.execute(query, (role,)).fetchall()
     return result
 
 
@@ -64,5 +64,19 @@ def add_permission(role, permission_id):
 def remove_permission(role, permission_id):
     db = get_db()
     query = "DELETE FROM permission_role WHERE role=? AND permission_id=?"
-    db.execute(query, (role, permission_id, ))
+    db.execute(query, (role, permission_id,))
+    db.commit()
+
+
+def add_user(role, user_id):
+    db = get_db()
+    query = "INSERT INTO role_user(role, user_id) VALUES (?, ?)"
+    db.execute(query, (role, user_id))
+    db.commit()
+
+
+def remove_user(role, user_id):
+    db = get_db()
+    query = "DELETE FROM role_user WHERE role=? AND user_id=?"
+    db.execute(query, (role, user_id,))
     db.commit()

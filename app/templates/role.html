@@ -1,7 +1,7 @@
 {% extends 'template.html' %}
 
 {% block style %}
-    <style xmlns:v-on="http://www.w3.org/1999/xhtml">
+    <style>
         .nav-pills .nav-link {
             transition: color, background-color 1s;
         }
@@ -16,7 +16,7 @@
         </div>
         <div class="form-row">
             <div class="col-lg-2 col-md-4 my-2 text-center text-md-left">
-                <button type="button" class="btn btn-primary" v-on:click="showCreateRole">
+                <button type="button" class="btn btn-primary" @click="showCreateRole">
                     <span data-feather="plus-square"></span>
                     Create Role
                 </button>
@@ -26,7 +26,7 @@
                     <div class="input-group-prepend">
                         <label for="role" class="input-group-text">Role</label>
                     </div>
-                    <select class="form-control" v-model="selectedRole" v-on:change="roleChanged" name="role" id="role">
+                    <select class="form-control" v-model="selectedRole" @change="roleChanged" name="role" id="role">
                         <option v-for="r in roles" :value="r.role"
                                 v-text="r.role.capitalize()"></option>
                     </select>
@@ -42,10 +42,10 @@
                         <span data-feather="delete"></span>
                         Delete
                     </a>
-                    <a class="btn btn-outline-success" href="#">
+                    <button type="button" class="btn btn-outline-success" @click="showAddUser">
                         <span data-feather="user-plus"></span>
                         Add User
-                    </a>
+                    </button>
                     <a class="btn btn-outline-success" href="#">
                         <span data-feather="file-plus"></span>
                         Add Permission
@@ -129,6 +129,7 @@
     </div>
 
     <!-- Modal -->
+    <!-- Create Edit Role -->
     <div class="modal fade" id="modal-create-edit" tabindex="-1" role="dialog"
          aria-labelledby="modal-create-edit-label" aria-hidden="true">
         <div class="modal-dialog" role="document">
@@ -156,14 +157,49 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Discard</button>
-                    <button type="button" class="btn btn-primary" v-on:click="doOperation"
+                    <button type="button" class="btn btn-primary" @click="doOperation"
                             v-text="role.operation.capitalize()"></button>
                 </div>
             </div>
         </div>
     </div>
 
+    <!-- Add User -->
+    <div class="modal" tabindex="-1" role="dialog" id="modal-add-user">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Add User to role <span v-text="selectedRole.capitalize()"></span></h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form class="needs-validation" novalidate>
+                        <div class="form-group row">
+                            <div class="col-md-8">
+                                <v-select v-model="selectedUsers" multiple label="username" :close-on-select="false"
+                                          :options="usersToAdd" placeholder="No User Selected">
+                                    <template slot="option" slot-scope="option">
+                                        <span v-text="`${option.first_name} ${option.last_name} (${option.username})`">
+                                        </span>
+                                    </template>
+                                </v-select>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" data-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-outline-danger"
+                            @click="addSelectedUsersToRole()">Add
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
 
+    <!-- Add Permission -->
     <div class="modal" tabindex="-1" role="dialog" id="modal-delete">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
@@ -182,7 +218,32 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-primary" data-dismiss="modal">Nope</button>
-                    <button type="button" class="btn btn-outline-danger" v-on:click="doRemove()">Yep</button>
+                    <button type="button" class="btn btn-outline-danger" @click="doRemove()">Yep</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Remove Anything -->
+    <div class="modal" tabindex="-1" role="dialog" id="modal-delete">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Delete <span v-text="remove.entity.capitalize()"></span></h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <p>
+                        Are your sure to delete
+                        <span v-text="remove.entity"></span>
+                        '<span v-text="remove.value.name"></span>'?
+                    </p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" data-dismiss="modal">Nope</button>
+                    <button type="button" class="btn btn-outline-danger" @click="doRemove()">Yep</button>
                 </div>
             </div>
         </div>
@@ -191,29 +252,59 @@
 {% endblock %}
 
 {% block script %}
+    <script src="{{ url_for('static', filename='js/vue-select.min.js') }}"></script>
+
     <script>
+        {#import * as VueSelect from "../static/js/vue-select.min";#}
+
+        Vue.component('v-select', VueSelect.VueSelect);
+
         new Vue({
             el: '#vm',
             mixins: [mixin],
             data: {
-                roles: [],
-                selectedRole: '',
-                role: {
+                roles: [],          // all roles
+                selectedRole: '',   // selected role in the dropdown
+                role: {             // placeholder for showing value in create-edit role modal
                     operation: '',
                     value: {}
                 },
-                permissions: [],
-                permission: undefined,
-                users: [],
-                user: undefined,
-                showUser: false,
-                remove: {
+                permissions: [],    // permissions that this.selectedRole has
+                permission: undefined,  // don't know
+                users: [],          // users that has role this.selectedRole
+                user: undefined,    // don't know
+                showUser: false,    // whether to show user of permission list
+                remove: {           // placeholder for showing value in delete role/user/permission modal
                     entity: '',
                     operation: '',
                     value: {}
                 },
+                allUsers: [],       // list of all users in system
+                allPermissions: [], // list of all permissions in the system
+                selectedUsers: [],  // selected users to add role this.selectedRole
+            },
+            computed: {
+                /**
+                 * Filters out users that already have role this.selectedRole
+                 * This is achieved by removing users from this.allUsers those belongs to this.users
+                 * @return {array}
+                 */
+                usersToAdd: function () {
+                    return this.allUsers.filter(user => {
+                        for (let i = 0; i < this.users.length; i++) {
+                            const roleUser = this.users[i];
+                            if (roleUser.id === user.id) {
+                                return false;
+                            }
+                        }
+                        return true;
+                    })
+                }
             },
             methods: {
+                /**
+                 * Show modal for creating role
+                 */
                 showCreateRole: function () {
                     $('form.needs-validation').removeClass('was-validated');
 
@@ -226,6 +317,10 @@
 
                     $('#modal-create-edit').modal('show');
                 },
+                /**
+                 * Handle role changed in the dropdown event.
+                 * Load users who have this.selectedRole
+                 */
                 roleChanged: function () {
                     request.get('role/' + this.selectedRole + '/permissions').then(r => {
                         this.permissions = r.data;
@@ -236,35 +331,73 @@
                     });
                 },
                 doOperation: function () {
+                    /**
+                     * Do create or edit role based on this.role placeholder's value
+                     */
                     if (this.role.operation === 'create') {
                         this.createRole()
                     } else {
                         this.editRole()
                     }
                 },
-                createRole: function() {
+                /**
+                 * Create a new role
+                 */
+                createRole: function () {
                     const url = 'role/create';
                     const params = this.role.value;
 
                     request.post(url, params).then(r => {
-                        this.roles.splice(this.roles.length-1, 0, {
+                        this.roles.splice(this.roles.length - 1, 0, {
                             role: params.role,
                         });
-                        this.selectedRole = this.roles[this.roles.length-1].role;
+                        this.selectedRole = this.roles[this.roles.length - 1].role;
                         $('#modal-create-edit').modal('hide');
                     })
                 },
-                editRole: function() {
+                editRole: function () {
                     // TODO: implement edit role
                 },
                 doRemove: function () {
-                    
+
+                },
+                showAddUser: function () {
+                    this.selectedUsers = [];
+                    $('#modal-add-user').modal('show');
+                },
+                /**
+                 * Add selected users to role this.selectedRole
+                 */
+                addSelectedUsersToRole: function () {
+                    const url = '/role/' + this.selectedRole + '/users/add';
+                    for (let i = 0; i < this.selectedUsers.length; i++) {
+                        const selectedUser = this.selectedUsers[i];
+                        const param = {user_id: selectedUser.id};
+                        request.post(url, param).then(r => {
+                            // find the user with same id as selectedUser.id
+                            const userToAdd = this.allUsers.filter(user => user.id === selectedUser.id)[0];
+                            // add it to end of this.users
+                            this.users.splice(this.users.length, 0, userToAdd)
+                        })
+                    }
+
+                    $('#modal-add-user').modal('hide');
                 }
             },
+            /**
+             * Loads all the roles at the beginning.
+             * After loading roles, loads all users and permissions.
+             */
             mounted() {
                 request.get('/role/all')
                     .then(response => {
                         this.roles = response.data;
+
+                        // Load users and permissions after loading roles
+                        // so that they don't slow down loading roles
+                        request.get('/user/all').then(r => {
+                            this.allUsers = r.data;
+                        })
                     })
             }
         })
