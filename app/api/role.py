@@ -65,7 +65,7 @@ def add_permission(role):
         return jsonify(errors), 400
     role_model.add_permission(role, data['permission_id'])
     response = {'message': 'added'}
-    return jsonify(response), 201
+    return jsonify(response), 204
 
 
 # TODO: implement bulk permission add
@@ -93,4 +93,13 @@ def edit(role):
     # TODO: Check Role Existence
     role_model.update(role, data['role'])
     response = {'message': 'updated'}
-    return jsonify(response), 201
+    return jsonify(response), 204
+
+
+@bp.route('<string:role>', methods=["DELETE"])
+@jwt_required()
+def remove(role):
+    # TODO: Check Role Existence
+    role_model.delete(role)
+    response = {'message': 'deleted'}
+    return jsonify(response), 204

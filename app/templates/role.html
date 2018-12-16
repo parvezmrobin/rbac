@@ -38,18 +38,18 @@
                         <span data-feather="edit"></span>
                         Edit
                     </button>
-                    <a class="btn btn-outline-danger" href="#">
+                    <button type="button" class="btn btn-outline-danger" @click="showDeleteRole">
                         <span data-feather="delete"></span>
                         Delete
-                    </a>
-                    <button type="button" class="btn btn-outline-success" @click="showAddUser">
-                        <span data-feather="user-plus"></span>
-                        Add User
-                    </button>
-                    <button type="button" class="btn btn-outline-success" @click="showAddPermission">
-                        <span data-feather="file-plus"></span>
-                        Add Permission
-                    </button>
+                        </a>
+                        <button type="button" class="btn btn-outline-success" @click="showAddUser">
+                            <span data-feather="user-plus"></span>
+                            Add User
+                        </button>
+                        <button type="button" class="btn btn-outline-success" @click="showAddPermission">
+                            <span data-feather="file-plus"></span>
+                            Add Permission
+                        </button>
                 </div>
             </div>
 
@@ -134,9 +134,10 @@
          aria-labelledby="modal-create-edit-label" aria-hidden="true">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
-                <div class="modal-header">
+                <div class="modal-header text-white"
+                     :class="{'bg-info': role.operation == 'edit', 'bg-primary': role.operation == 'create'}">
                     <h5 class="modal-title">
-                        <span v-text="role.operation"></span> Role
+                        <span v-text="role.operation.capitalize()"></span> Role
                     </h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
@@ -168,7 +169,7 @@
     <div class="modal" tabindex="-1" role="dialog" id="modal-add-user">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
-                <div class="modal-header">
+                <div class="modal-header text-white bg-success">
                     <h5 class="modal-title">Add Users to role <span v-text="selectedRole.capitalize()"></span></h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
@@ -205,7 +206,7 @@
     <div class="modal" tabindex="-1" role="dialog" id="modal-add-permission">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
-                <div class="modal-header">
+                <div class="modal-header text-white bg-success">
                     <h5 class="modal-title">
                         Add Permissions to role <span v-text="selectedRole.capitalize()"></span>
                     </h5>
@@ -245,7 +246,7 @@
     <div class="modal" tabindex="-1" role="dialog" id="modal-delete">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
-                <div class="modal-header">
+                <div class="modal-header bg-danger text-white">
                     <h5 class="modal-title">Delete <span v-text="remove.entity.capitalize()"></span></h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
@@ -255,7 +256,7 @@
                     <p>
                         Are your sure to delete
                         <span v-text="remove.entity"></span>
-                        '<span v-text="remove.value.name"></span>'?
+                        '<span v-text="remove.name"></span>'?
                     </p>
                 </div>
                 <div class="modal-footer">
@@ -293,7 +294,7 @@
                 showUser: false,    // whether to show user of permission list
                 remove: {           // placeholder for showing value in delete role/user/permission modal
                     entity: '',
-                    operation: '',
+                    name: '',
                     value: {}
                 },
                 allUsers: [],       // list of all users in system
@@ -400,22 +401,27 @@
                     const params = this.role.value;
 
                     request.post(url, params).then(r => {
-                        this.roles.splice(this.roles.length - 1, 0, {
+                        this.roles.splice(this.roles.length, 0, {
                             role: params.role,
                         });
                         this.selectedRole = this.roles[this.roles.length - 1].role;
+                        this.permissions = [];
+                        this.users = [];
                         $('#modal-create-edit').modal('hide');
                     });
+                },
+                getIndexOfSelectedRole: function () {
+                    const search = (reduced, val, i) => {
+                        return val.role === this.selectedRole ? reduced + i : reduced;
+                    };
+                    return this.roles.reduce(search, 0);
                 },
                 editRole: function () {
                     const url = 'role/' + this.selectedRole;
                     const params = this.role.value;
 
                     request.post(url, params).then(r => {
-                        const search = (reduced, val, i) => {
-                            return val.role === this.selectedRole ? reduced + i : reduced;
-                        };
-                        const index = this.roles.reduce(search, 0);
+                        const index = this.getIndexOfSelectedRole();
                         this.roles.splice(index, 1, {
                             role: params.role,
                         });
@@ -424,7 +430,15 @@
                     });
                 },
                 doRemove: function () {
-
+                    if (this.remove.entity === 'role') {
+                        this.removeRole();
+                    } else if (this.remove.entity === 'user') {
+                        this.removeUser();
+                    } else if (this.remove.entity === 'permission') {
+                        this.removePermission();
+                    } else {
+                        console.error("Trying to remove unknow entity " + this.remove.entity);
+                    }
                 },
                 showAddUser: function () {
                     this.selectedUsers = [];
@@ -470,7 +484,41 @@
                     }
 
                     $('#modal-add-permission').modal('hide');
+                },
+                showDeleteRole: function () {
+                    this.remove = {
+                        entity: 'role',
+                        name: this.selectedRole,
+                        value: {
+                            role: this.selectedRole
+                        }
+                    };
+
+                    $('#modal-delete').modal('show');
+                },
+                /**
+                 * Removes a role
+                 */
+                removeRole: function () {
+                    const url = 'role/' + this.selectedRole;
+                    request.delete(url).then(r => {
+                        let index = this.getIndexOfSelectedRole();
+                        this.roles.splice(index, 1);
+
+                        // Update this.selectedRole if there is any role
+                        if (this.roles.length > 0) {
+                            // if index is same as this.roles.length, this index no longer exists
+                            if (index === this.roles.length) {
+                                index--;
+                            }
+                            this.selectedRole = this.roles[index].role;
+                            this.roleChanged();
+                        }
+
+                        $('#modal-delete').modal('hide');
+                    });
                 }
+                ,
             },
             /**
              * Loads all the roles at the beginning.
