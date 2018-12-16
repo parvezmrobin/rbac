@@ -34,10 +34,10 @@
             </div>
             <div class="col-lg-6 d-inline-flex justify-content-lg-end justify-content-center my-2">
                 <div class="btn-group">
-                    <a class="btn btn-outline-info" href="#">
+                    <button type="button" class="btn btn-outline-info" @click="showEditRole">
                         <span data-feather="edit"></span>
                         Edit
-                    </a>
+                    </button>
                     <a class="btn btn-outline-danger" href="#">
                         <span data-feather="delete"></span>
                         Delete
@@ -46,7 +46,7 @@
                         <span data-feather="user-plus"></span>
                         Add User
                     </button>
-                    <button type="button" class="btn btn-outline-success"  @click="showAddPermission">
+                    <button type="button" class="btn btn-outline-success" @click="showAddPermission">
                         <span data-feather="file-plus"></span>
                         Add Permission
                     </button>
@@ -176,7 +176,7 @@
                 </div>
                 <div class="modal-body">
                     <form class="needs-validation" novalidate>
-{#                        TODO: validate add users to role#}
+                        {#                        TODO: validate add users to role#}
                         <div class="form-group row">
                             <label class="col-md-4 col-form-label">Select Users</label>
                             <div class="col-md-8">
@@ -216,7 +216,7 @@
                 </div>
                 <div class="modal-body">
                     <form class="needs-validation" novalidate>
-{#                        TODO: validate add permissions to role #}
+                        {#                        TODO: validate add permissions to role #}
                         <div class="form-group row">
                             <label class="col-md-4 col-form-label">Select Permission</label>
                             <div class="col-md-8">
@@ -234,7 +234,8 @@
                 <div class="modal-footer">
                     <button type="button" class="btn btn-primary" data-dismiss="modal">Cancel</button>
                     <button type="button" class="btn btn-outline-success"
-                            @click="addSelectedPermissionsToRole()">Add</button>
+                            @click="addSelectedPermissionsToRole()">Add
+                    </button>
                 </div>
             </div>
         </div>
@@ -337,21 +338,6 @@
             },
             methods: {
                 /**
-                 * Show modal for creating role
-                 */
-                showCreateRole: function () {
-                    $('form.needs-validation').removeClass('was-validated');
-
-                    this.role = {
-                        operation: 'create',
-                        value: {
-                            'role': '',
-                        }
-                    };
-
-                    $('#modal-create-edit').modal('show');
-                },
-                /**
                  * Handle role changed in the dropdown event.
                  * Load users who have this.selectedRole
                  */
@@ -364,14 +350,46 @@
                         this.users = r.data;
                     });
                 },
+                /**
+                 * Show modal for creating role
+                 */
+                showCreateRole: function () {
+                    $('#modal-create-edit form.needs-validation').removeClass('was-validated');
+
+                    this.role = {
+                        operation: 'create',
+                        value: {
+                            'role': '',
+                        }
+                    };
+
+                    $('#modal-create-edit').modal('show');
+                },
+                /**
+                 * Show modal for editing role
+                 */
+                showEditRole: function () {
+                    $('#modal-create-edit form.needs-validation').removeClass('was-validated');
+
+                    this.role = {
+                        operation: 'edit',
+                        value: {
+                            'role': this.selectedRole,
+                        }
+                    };
+
+                    $('#modal-create-edit').modal('show');
+                },
                 doOperation: function () {
                     /**
                      * Do create or edit role based on this.role placeholder's value
                      */
                     if (this.role.operation === 'create') {
                         this.createRole()
-                    } else {
+                    } else if (this.role.operation === 'edit') {
                         this.editRole()
+                    } else {
+                        console.error("Unknown operation:", this.role.operation)
                     }
                 },
                 /**
@@ -387,10 +405,23 @@
                         });
                         this.selectedRole = this.roles[this.roles.length - 1].role;
                         $('#modal-create-edit').modal('hide');
-                    })
+                    });
                 },
                 editRole: function () {
-                    // TODO: implement edit role
+                    const url = 'role/' + this.selectedRole;
+                    const params = this.role.value;
+
+                    request.post(url, params).then(r => {
+                        const search = (reduced, val, i) => {
+                            return val.role === this.selectedRole ? reduced + i : reduced;
+                        };
+                        const index = this.roles.reduce(search, 0);
+                        this.roles.splice(index, 1, {
+                            role: params.role,
+                        });
+                        this.selectedRole = this.roles[index].role;
+                        $('#modal-create-edit').modal('hide');
+                    });
                 },
                 doRemove: function () {
 

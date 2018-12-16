@@ -74,12 +74,23 @@ def add_permission(role):
 @jwt_required()
 def create():
     data = request.get_json()
-    errors = {}
-    if 'role' not in data or not data['role']:
-        errors['role'] = 'Role is required.'
+    errors = required(['role'], data)
     if errors:
         return jsonify(errors), 400
     # TODO: Check Role Existence
     role_model.create(data['role'])
     response = {'role': data['role']}
+    return jsonify(response), 201
+
+
+@bp.route('<string:role>', methods=["POST"])
+@jwt_required()
+def edit(role):
+    data = request.get_json()
+    errors = required(['role'], data)
+    if errors:
+        return jsonify(errors), 400
+    # TODO: Check Role Existence
+    role_model.update(role, data['role'])
+    response = {'message': 'updated'}
     return jsonify(response), 201
