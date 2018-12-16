@@ -86,12 +86,13 @@
                             </tr>
                             </thead>
                             <tbody>
-                            <tr v-for="permission in permissions">
+                            <tr v-for="(permission, i) in permissions">
                                 <td v-text="permission.name.capitalize()"></td>
                                 <td v-text="permission.entity.capitalize()"></td>
                                 <td v-text="permission.operation.capitalize()"></td>
                                 <td>
-                                    <button class="btn btn-outline-warning">Remove</button>
+                                    <button class="btn btn-outline-warning"
+                                            @click="showDetouchPermission(permission, i)">Remove</button>
                                 </td>
                             </tr>
                             </tbody>
@@ -346,7 +347,7 @@
                  * Load users who have this.selectedRole
                  */
                 roleChanged: function () {
-                    request.get('role/' + this.selectedRole + '/permissions').then(r => {
+                    request.get('role/' + this.selectedRole + '/permission').then(r => {
                         this.permissions = r.data;
                     });
 
@@ -438,7 +439,7 @@
                     } else if (this.remove.entity === 'user') {
                         this.detouchUser();
                     } else if (this.remove.entity === 'permission') {
-                        this.removePermission();
+                        this.detouchPermission();
                     } else {
                         console.error("Trying to remove unknow entity " + this.remove.entity);
                     }
@@ -473,7 +474,7 @@
                  * Add selected permissions to role this.selectedRole
                  */
                 addSelectedPermissionsToRole: function () {
-                    const url = '/role/' + this.selectedRole + '/permissions/add';
+                    const url = '/role/' + this.selectedRole + '/permission';
                     for (let i = 0; i < this.selectedPermissions.length; i++) {
                         const selectedPermission = this.selectedPermissions[i];
                         const param = {permission_id: selectedPermission.id};
@@ -542,6 +543,31 @@
                     const param = {user_id: this.remove.value.id};
                     request.delete(url, {data: param}).then(r => {
                         this.users.splice(this.remove.index, 1);
+                    });
+
+                    $('#modal-delete').modal('hide');
+                },
+                showDetouchPermission: function (permission, i) {
+                    this.remove = {
+                        entity: 'permission',
+                        name: permission.name,
+                        value: permission,
+                        index: i,
+                    };
+                    if (this.removeWithoutConfirmation) {
+                        this.detouchPermission();
+                    } else {
+                        $('#modal-delete').modal('show');
+                    }
+                },
+                /**
+                 * Detouch a permission from this.selectedRole
+                 */
+                detouchPermission: function () {
+                    const url = '/role/' + this.selectedRole + '/permission';
+                    const param = {permission_id: this.remove.value.id};
+                    request.delete(url, {data: param}).then(r => {
+                        this.permissions.splice(this.remove.index, 1);
                     });
 
                     $('#modal-delete').modal('hide');

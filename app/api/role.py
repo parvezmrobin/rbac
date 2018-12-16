@@ -58,7 +58,7 @@ def remove_user(role):
     return jsonify(response), 204
 
 
-@bp.route("/<string:role>/permissions", methods=["GET"])
+@bp.route("/<string:role>/permission", methods=["GET"])
 @jwt_required()
 def get_permissions(role):
     permissions = role_model.get_permissions(role)
@@ -68,7 +68,7 @@ def get_permissions(role):
     return jsonify(result), 200
 
 
-@bp.route("<string:role>/permissions/add", methods=["POST"])
+@bp.route("<string:role>/permission", methods=["POST"])
 @jwt_required()
 def add_permission(role):
     data = request.get_json()
@@ -82,6 +82,20 @@ def add_permission(role):
 
 
 # TODO: implement bulk permission add
+
+
+@bp.route("<string:role>/permission", methods=["DELETE"])
+@jwt_required()
+def remove_permission(role):
+    data = request.get_json()
+    errors = required(['permission_id'], data)
+    # TODO: already exists check
+    if errors:
+        return jsonify(errors), 400
+    role_model.remove_permission(role, data['permission_id'])
+    response = {'message': 'removed'}
+    return jsonify(response), 204
+
 
 @bp.route('create', methods=["POST"])
 @jwt_required()
