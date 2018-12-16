@@ -41,15 +41,15 @@
                     <button type="button" class="btn btn-outline-danger" @click="showDeleteRole">
                         <span data-feather="delete"></span>
                         Delete
-                        </a>
-                        <button type="button" class="btn btn-outline-success" @click="showAddUser">
-                            <span data-feather="user-plus"></span>
-                            Add User
-                        </button>
-                        <button type="button" class="btn btn-outline-success" @click="showAddPermission">
-                            <span data-feather="file-plus"></span>
-                            Add Permission
-                        </button>
+                    </button>
+                    <button type="button" class="btn btn-outline-success" @click="showAddUser">
+                        <span data-feather="user-plus"></span>
+                        Add User
+                    </button>
+                    <button type="button" class="btn btn-outline-success" @click="showAddPermission">
+                        <span data-feather="file-plus"></span>
+                        Add Permission
+                    </button>
                 </div>
             </div>
 
@@ -109,7 +109,7 @@
                             </tr>
                             </thead>
                             <tbody>
-                            <tr v-for="user in users">
+                            <tr v-for="(user, i) in users">
                                 <td v-text="user.first_name"></td>
                                 <td v-text="user.last_name"></td>
                                 <td v-text="user.username"></td>
@@ -117,7 +117,8 @@
                                     <a :href="'mailto:' + user.email" v-text="user.email"></a>
                                 </td>
                                 <td>
-                                    <button class="btn btn-outline-warning">Remove</button>
+                                    <button class="btn btn-outline-warning" @click="showDetouchUser(user, i)">Remove
+                                    </button>
                                 </td>
                             </tr>
                             </tbody>
@@ -301,6 +302,8 @@
                 allPermissions: [], // list of all permissions in the system
                 selectedUsers: [],  // selected users to add role this.selectedRole
                 selectedPermissions: [],  // selected permissions to add role this.selectedRole
+
+                removeWithoutConfirmation: false,
             },
             computed: {
                 /**
@@ -347,7 +350,7 @@
                         this.permissions = r.data;
                     });
 
-                    request.get('role/' + this.selectedRole + '/users').then(r => {
+                    request.get('role/' + this.selectedRole + '/user').then(r => {
                         this.users = r.data;
                     });
                 },
@@ -433,7 +436,7 @@
                     if (this.remove.entity === 'role') {
                         this.removeRole();
                     } else if (this.remove.entity === 'user') {
-                        this.removeUser();
+                        this.detouchUser();
                     } else if (this.remove.entity === 'permission') {
                         this.removePermission();
                     } else {
@@ -448,7 +451,7 @@
                  * Add selected users to role this.selectedRole
                  */
                 addSelectedUsersToRole: function () {
-                    const url = '/role/' + this.selectedRole + '/users/add';
+                    const url = '/role/' + this.selectedRole + '/user';
                     for (let i = 0; i < this.selectedUsers.length; i++) {
                         const selectedUser = this.selectedUsers[i];
                         const param = {user_id: selectedUser.id};
@@ -517,15 +520,39 @@
 
                         $('#modal-delete').modal('hide');
                     });
-                }
-                ,
+                },
+                showDetouchUser: function (user, i) {
+                    this.remove = {
+                        entity: 'user',
+                        name: user.first_name + ' ' + user.last_name,
+                        value: user,
+                        index: i,
+                    };
+                    if (this.removeWithoutConfirmation) {
+                        this.detouchUser();
+                    } else {
+                        $('#modal-delete').modal('show');
+                    }
+                },
+                /**
+                 * Detouch a user from this.selectedRole
+                 */
+                detouchUser: function () {
+                    const url = '/role/' + this.selectedRole + '/user';
+                    const param = {user_id: this.remove.value.id};
+                    request.delete(url, {data: param}).then(r => {
+                        this.users.splice(this.remove.index, 1);
+                    });
+
+                    $('#modal-delete').modal('hide');
+                },
             },
             /**
              * Loads all the roles at the beginning.
              * After loading roles, loads all users and permissions.
              */
             mounted() {
-                request.get('/role/all')
+                request.get('/role')
                     .then(response => {
                         this.roles = response.data;
 

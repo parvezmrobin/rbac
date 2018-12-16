@@ -9,7 +9,7 @@ from app.models.permission import columns as permission_columns
 bp = Blueprint('api.v1.role', __name__, url_prefix='/api/v1/role')
 
 
-@bp.route('/all', methods=["GET"])
+@bp.route('/', methods=["GET"])
 @jwt_required()
 def index():
     rows = role_model.index()
@@ -19,7 +19,7 @@ def index():
     return jsonify(results), 200
 
 
-@bp.route("/<string:role>/users", methods=["GET"])
+@bp.route("/<string:role>/user", methods=["GET"])
 @jwt_required()
 def get_users(role):
     users = role_model.get_users(role)
@@ -29,7 +29,7 @@ def get_users(role):
     return jsonify(result), 200
 
 
-@bp.route("<string:role>/users/add", methods=["POST"])
+@bp.route("<string:role>/user", methods=["POST"])
 @jwt_required()
 def add_user(role):
     data = request.get_json()
@@ -43,6 +43,19 @@ def add_user(role):
 
 
 # TODO: implement bulk user add
+
+
+@bp.route("<string:role>/user", methods=["DELETE"])
+@jwt_required()
+def remove_user(role):
+    data = request.get_json()
+    errors = required(['user_id'], data)
+    # TODO: already exists check
+    if errors:
+        return jsonify(errors), 400
+    role_model.remove_user(role, data['user_id'])
+    response = {'message': 'removed'}
+    return jsonify(response), 204
 
 
 @bp.route("/<string:role>/permissions", methods=["GET"])
