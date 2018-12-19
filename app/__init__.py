@@ -8,7 +8,10 @@ true, false, null = True, False, None
 
 def create_app(test_config=null):
     # Create and configure the application
-    app = Flask(__name__)
+    app = Flask(
+        __name__,
+        template_folder='templates/vue',
+    )
     app.config.from_mapping(
         SECRET_KEY='dev',
         DATABASE='rbac.sqlite',
