@@ -46,7 +46,7 @@
             users: []
         },
         mounted(){
-            axios.get('/api/v1/user/all')
+            request.get('/user')
                 .then(response => {
                     this.users = response.data;
                 })

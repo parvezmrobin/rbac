@@ -584,11 +584,11 @@
 
                         // Load users and permissions after loading roles
                         // so that they don't slow down loading roles
-                        request.get('/user/all').then(r => {
+                        request.get('/user').then(r => {
                             this.allUsers = r.data;
                         });
 
-                        request.get('/permission/all').then(r => {
+                        request.get('/permission').then(r => {
                             this.allPermissions = r.data;
                         });
                     })

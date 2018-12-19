@@ -227,7 +227,7 @@
                 }
             },
             mounted() {
-                request.get('permission/all')
+                request.get('permission')
                     .then(response => {
                         this.permissions = response.data;
                     })

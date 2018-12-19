@@ -5,7 +5,7 @@ from app.models.user import index as index_users, columns
 bp = Blueprint('api.v1.user', __name__, url_prefix='/api/v1/user')
 
 
-@bp.route('/all', methods=["GET"])
+@bp.route('/', methods=["GET"])
 def index():
     rows = index_users()
     results = []
