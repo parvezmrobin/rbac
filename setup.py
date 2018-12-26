@@ -7,6 +7,6 @@ setup(
     include_package_data=True,
     zip_safe=False,
     install_requires=[
-        'flask', 'werkzeug', 'flask_jwt'
+        'flask', 'werkzeug', 'flask_jwt', 'flask_cors'
     ]
 )

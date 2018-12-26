@@ -2,6 +2,7 @@ from datetime import timedelta
 
 from flask import Flask
 from flask_jwt import JWT
+from flask_cors import CORS
 
 true, false, null = True, False, None
 
@@ -23,6 +24,8 @@ def create_app(test_config=null):
         app.config.from_pyfile('config.py', silent=true)
     else:
         app.config.from_mapping(test_config)
+
+    CORS(app)
 
     from .db import init_app
     init_app(app)
