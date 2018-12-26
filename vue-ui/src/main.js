@@ -1,6 +1,7 @@
 import Vue from 'vue';
 import Login from './Login.vue';
 import Dashboard from './Dashboard.vue';
+import Role from './Role.vue';
 import Permission from "./Permission.vue";
 
 
@@ -11,6 +12,9 @@ let Component;
 switch (window.location.pathname) {
     case "/":
         Component = Dashboard;
+        break;
+    case "/role":
+        Component = Role;
         break;
     case "/permission":
         Component = Permission;

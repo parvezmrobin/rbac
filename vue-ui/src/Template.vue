@@ -50,7 +50,7 @@
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" id="nav-role" href="#">
+                            <a class="nav-link" id="nav-role" href="/role">
                                 <span data-feather="briefcase"></span>
                                 Roles
                             </a>
