@@ -44,7 +44,7 @@
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" id="nav-user" href="#">
+                            <a class="nav-link" id="nav-user" href="/user">
                                 <span data-feather="user"></span>
                                 Users
                             </a>

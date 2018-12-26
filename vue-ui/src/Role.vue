@@ -307,293 +307,293 @@
                 removeWithoutConfirmation: false, // TODO: implement bulk remove
             }
         },
-            computed: {
-                /**
-                 * Filters out users that already have role this.selectedRole.
-                 * This is achieved by removing users from this.allUsers those belongs to this.users.
-                 * @return {array}
-                 */
-                usersToAdd: function () {
-                    return this.allUsers.filter(user => {
-                        for (let i = 0; i < this.users.length; i++) {
-                            const roleUser = this.users[i];
-                            if (roleUser.id === user.id) {
-                                return false;
-                            }
+        computed: {
+            /**
+             * Filters out users that already have role this.selectedRole.
+             * This is achieved by removing users from this.allUsers those belongs to this.users.
+             * @return {array}
+             */
+            usersToAdd: function () {
+                return this.allUsers.filter(user => {
+                    for (let i = 0; i < this.users.length; i++) {
+                        const roleUser = this.users[i];
+                        if (roleUser.id === user.id) {
+                            return false;
                         }
-                        return true;
-                    })
-                },
-                /**
-                 * Filters out permissions that already this.selectedRole has.
-                 * This is achieved by removing permissions from this.allPermissions
-                 * those belongs to this.permissions.
-                 * @return {array}
-                 */
-                permissionsToAdd: function () {
-                    return this.allPermissions.filter(permission => {
-                        for (let i = 0; i < this.permissions.length; i++) {
-                            const rolePermission = this.permissions[i];
-                            if (rolePermission.id === permission.id) {
-                                return false;
-                            }
-                        }
-                        return true;
-                    })
-                },
-            },
-            methods: {
-                /**
-                 * Handle role changed in the dropdown event.
-                 * Load users who have this.selectedRole
-                 */
-                roleChanged: function () {
-                    request.get('role/' + this.selectedRole + '/permission').then(r => {
-                        this.permissions = r.data;
-                    });
-
-                    request.get('role/' + this.selectedRole + '/user').then(r => {
-                        this.users = r.data;
-                    });
-                },
-                /**
-                 * Show modal for creating role
-                 */
-                showCreateRole: function () {
-                    $('#modal-create-edit form.needs-validation').removeClass('was-validated');
-
-                    this.role = {
-                        operation: 'create',
-                        value: {
-                            'role': '',
-                        }
-                    };
-
-                    $('#modal-create-edit').modal('show');
-                },
-                /**
-                 * Show modal for editing role
-                 */
-                showEditRole: function () {
-                    $('#modal-create-edit form.needs-validation').removeClass('was-validated');
-
-                    this.role = {
-                        operation: 'edit',
-                        value: {
-                            'role': this.selectedRole,
-                        }
-                    };
-
-                    $('#modal-create-edit').modal('show');
-                },
-                doOperation: function () {
-                    /**
-                     * Do create or edit role based on this.role placeholder's value
-                     */
-                    if (this.role.operation === 'create') {
-                        this.createRole()
-                    } else if (this.role.operation === 'edit') {
-                        this.editRole()
-                    } else {
-                        console.error("Unknown operation:", this.role.operation)
                     }
-                },
-                /**
-                 * Create a new role
-                 */
-                createRole: function () {
-                    const url = 'role/create';
-                    const params = this.role.value;
-
-                    request.post(url, params).then(() => {
-                        this.roles.splice(this.roles.length, 0, {
-                            role: params.role,
-                        });
-                        this.selectedRole = this.roles[this.roles.length - 1].role;
-                        this.permissions = [];
-                        this.users = [];
-                        $('#modal-create-edit').modal('hide');
-                    });
-                },
-                getIndexOfSelectedRole: function () {
-                    const search = (reduced, val, i) => {
-                        return val.role === this.selectedRole ? reduced + i : reduced;
-                    };
-                    return this.roles.reduce(search, 0);
-                },
-                editRole: function () {
-                    const url = 'role/' + this.selectedRole;
-                    const params = this.role.value;
-
-                    request.post(url, params).then(() => {
-                        const index = this.getIndexOfSelectedRole();
-                        this.roles.splice(index, 1, {
-                            role: params.role,
-                        });
-                        this.selectedRole = this.roles[index].role;
-                        $('#modal-create-edit').modal('hide');
-                    });
-                },
-                doRemove: function () {
-                    if (this.remove.entity === 'role') {
-                        this.removeRole();
-                    } else if (this.remove.entity === 'user') {
-                        this.detouchUser();
-                    } else if (this.remove.entity === 'permission') {
-                        this.detouchPermission();
-                    } else {
-                        console.error("Trying to remove unknow entity " + this.remove.entity);
-                    }
-                },
-                showAddUser: function () {
-                    this.selectedUsers = [];
-                    $('#modal-add-user').modal('show');
-                },
-                /**
-                 * Add selected users to role this.selectedRole
-                 */
-                addSelectedUsersToRole: function () {
-                    const url = '/role/' + this.selectedRole + '/user';
-                    for (let i = 0; i < this.selectedUsers.length; i++) {
-                        const selectedUser = this.selectedUsers[i];
-                        const param = {user_id: selectedUser.id};
-                        request.post(url, param).then(() => {
-                            // find the user with same id as selectedUser.id
-                            const userToAdd = this.allUsers.filter(user => user.id === selectedUser.id)[0];
-                            // add it to end of this.users
-                            this.users.splice(this.users.length, 0, userToAdd)
-                        })
-                    }
-
-                    $('#modal-add-user').modal('hide');
-                },
-                showAddPermission: function () {
-                    this.selectedPermissions = [];
-                    $('#modal-add-permission').modal('show');
-                },
-                /**
-                 * Add selected permissions to role this.selectedRole
-                 */
-                addSelectedPermissionsToRole: function () {
-                    const url = '/role/' + this.selectedRole + '/permission';
-                    for (let i = 0; i < this.selectedPermissions.length; i++) {
-                        const selectedPermission = this.selectedPermissions[i];
-                        const param = {permission_id: selectedPermission.id};
-                        request.post(url, param).then(() => {
-                            // find the permission with same id as selectedPermission.id
-                            const permissionToAdd = this.allPermissions
-                                .filter(user => user.id === selectedPermission.id)[0];
-                            // add it to end of this.permissions
-                            this.permissions.splice(this.users.length, 0, permissionToAdd)
-                        })
-                    }
-
-                    $('#modal-add-permission').modal('hide');
-                },
-                showDeleteRole: function () {
-                    this.remove = {
-                        entity: 'role',
-                        name: this.selectedRole,
-                        value: {
-                            role: this.selectedRole
-                        }
-                    };
-
-                    $('#modal-delete').modal('show');
-                },
-                /**
-                 * Removes a role
-                 */
-                removeRole: function () {
-                    const url = 'role/' + this.selectedRole;
-                    request.delete(url).then(() => {
-                        let index = this.getIndexOfSelectedRole();
-                        this.roles.splice(index, 1);
-
-                        // Update this.selectedRole if there is any role
-                        if (this.roles.length > 0) {
-                            // if index is same as this.roles.length, this index no longer exists
-                            if (index === this.roles.length) {
-                                index--;
-                            }
-                            this.selectedRole = this.roles[index].role;
-                            this.roleChanged();
-                        }
-
-                        $('#modal-delete').modal('hide');
-                    });
-                },
-                showDetouchUser: function (user, i) {
-                    this.remove = {
-                        entity: 'user',
-                        name: user.first_name + ' ' + user.last_name,
-                        value: user,
-                        index: i,
-                    };
-                    if (this.removeWithoutConfirmation) {
-                        this.detouchUser();
-                    } else {
-                        $('#modal-delete').modal('show');
-                    }
-                },
-                /**
-                 * Detouch a user from this.selectedRole
-                 */
-                detouchUser: function () {
-                    const url = '/role/' + this.selectedRole + '/user';
-                    const param = {user_id: this.remove.value.id};
-                    request.delete(url, {data: param}).then(() => {
-                        this.users.splice(this.remove.index, 1);
-                    });
-
-                    $('#modal-delete').modal('hide');
-                },
-                showDetouchPermission: function (permission, i) {
-                    this.remove = {
-                        entity: 'permission',
-                        name: permission.name,
-                        value: permission,
-                        index: i,
-                    };
-                    if (this.removeWithoutConfirmation) {
-                        this.detouchPermission();
-                    } else {
-                        $('#modal-delete').modal('show');
-                    }
-                },
-                /**
-                 * Detouch a permission from this.selectedRole
-                 */
-                detouchPermission: function () {
-                    const url = '/role/' + this.selectedRole + '/permission';
-                    const param = {permission_id: this.remove.value.id};
-                    request.delete(url, {data: param}).then(() => {
-                        this.permissions.splice(this.remove.index, 1);
-                    });
-
-                    $('#modal-delete').modal('hide');
-                },
+                    return true;
+                })
             },
             /**
-             * Loads all the roles at the beginning.
-             * After loading roles, loads all users and permissions.
+             * Filters out permissions that already this.selectedRole has.
+             * This is achieved by removing permissions from this.allPermissions
+             * those belongs to this.permissions.
+             * @return {array}
              */
-            mounted() {
-                request.get('/role/')
-                    .then(response => {
-                        this.roles = response.data;
+            permissionsToAdd: function () {
+                return this.allPermissions.filter(permission => {
+                    for (let i = 0; i < this.permissions.length; i++) {
+                        const rolePermission = this.permissions[i];
+                        if (rolePermission.id === permission.id) {
+                            return false;
+                        }
+                    }
+                    return true;
+                })
+            },
+        },
+        methods: {
+            /**
+             * Handle role changed in the dropdown event.
+             * Load users who have this.selectedRole
+             */
+            roleChanged: function () {
+                request.get('role/' + this.selectedRole + '/permission').then(r => {
+                    this.permissions = r.data;
+                });
 
-                        // Load users and permissions after loading roles
-                        // so that they don't slow down loading roles
-                        request.get('/user/').then(r => {
-                            this.allUsers = r.data;
-                        });
+                request.get('role/' + this.selectedRole + '/user').then(r => {
+                    this.users = r.data;
+                });
+            },
+            /**
+             * Show modal for creating role
+             */
+            showCreateRole: function () {
+                $('#modal-create-edit form.needs-validation').removeClass('was-validated');
 
-                        request.get('/permission/').then(r => {
-                            this.allPermissions = r.data;
-                        });
+                this.role = {
+                    operation: 'create',
+                    value: {
+                        'role': '',
+                    }
+                };
+
+                $('#modal-create-edit').modal('show');
+            },
+            /**
+             * Show modal for editing role
+             */
+            showEditRole: function () {
+                $('#modal-create-edit form.needs-validation').removeClass('was-validated');
+
+                this.role = {
+                    operation: 'edit',
+                    value: {
+                        'role': this.selectedRole,
+                    }
+                };
+
+                $('#modal-create-edit').modal('show');
+            },
+            doOperation: function () {
+                /**
+                 * Do create or edit role based on this.role placeholder's value
+                 */
+                if (this.role.operation === 'create') {
+                    this.createRole()
+                } else if (this.role.operation === 'edit') {
+                    this.editRole()
+                } else {
+                    console.error("Unknown operation:", this.role.operation)
+                }
+            },
+            /**
+             * Create a new role
+             */
+            createRole: function () {
+                const url = 'role/create';
+                const params = this.role.value;
+
+                request.post(url, params).then(() => {
+                    this.roles.splice(this.roles.length, 0, {
+                        role: params.role,
+                    });
+                    this.selectedRole = this.roles[this.roles.length - 1].role;
+                    this.permissions = [];
+                    this.users = [];
+                    $('#modal-create-edit').modal('hide');
+                });
+            },
+            getIndexOfSelectedRole: function () {
+                const search = (reduced, val, i) => {
+                    return val.role === this.selectedRole ? reduced + i : reduced;
+                };
+                return this.roles.reduce(search, 0);
+            },
+            editRole: function () {
+                const url = 'role/' + this.selectedRole;
+                const params = this.role.value;
+
+                request.post(url, params).then(() => {
+                    const index = this.getIndexOfSelectedRole();
+                    this.roles.splice(index, 1, {
+                        role: params.role,
+                    });
+                    this.selectedRole = this.roles[index].role;
+                    $('#modal-create-edit').modal('hide');
+                });
+            },
+            doRemove: function () {
+                if (this.remove.entity === 'role') {
+                    this.removeRole();
+                } else if (this.remove.entity === 'user') {
+                    this.detouchUser();
+                } else if (this.remove.entity === 'permission') {
+                    this.detouchPermission();
+                } else {
+                    console.error("Trying to remove unknow entity " + this.remove.entity);
+                }
+            },
+            showAddUser: function () {
+                this.selectedUsers = [];
+                $('#modal-add-user').modal('show');
+            },
+            /**
+             * Add selected users to role this.selectedRole
+             */
+            addSelectedUsersToRole: function () {
+                const url = '/role/' + this.selectedRole + '/user';
+                for (let i = 0; i < this.selectedUsers.length; i++) {
+                    const selectedUser = this.selectedUsers[i];
+                    const param = {user_id: selectedUser.id};
+                    request.post(url, param).then(() => {
+                        // find the user with same id as selectedUser.id
+                        const userToAdd = this.allUsers.filter(user => user.id === selectedUser.id)[0];
+                        // add it to end of this.users
+                        this.users.splice(this.users.length, 0, userToAdd)
                     })
-            }
+                }
+
+                $('#modal-add-user').modal('hide');
+            },
+            showAddPermission: function () {
+                this.selectedPermissions = [];
+                $('#modal-add-permission').modal('show');
+            },
+            /**
+             * Add selected permissions to role this.selectedRole
+             */
+            addSelectedPermissionsToRole: function () {
+                const url = '/role/' + this.selectedRole + '/permission';
+                for (let i = 0; i < this.selectedPermissions.length; i++) {
+                    const selectedPermission = this.selectedPermissions[i];
+                    const param = {permission_id: selectedPermission.id};
+                    request.post(url, param).then(() => {
+                        // find the permission with same id as selectedPermission.id
+                        const permissionToAdd = this.allPermissions
+                            .filter(user => user.id === selectedPermission.id)[0];
+                        // add it to end of this.permissions
+                        this.permissions.splice(this.users.length, 0, permissionToAdd)
+                    })
+                }
+
+                $('#modal-add-permission').modal('hide');
+            },
+            showDeleteRole: function () {
+                this.remove = {
+                    entity: 'role',
+                    name: this.selectedRole,
+                    value: {
+                        role: this.selectedRole
+                    }
+                };
+
+                $('#modal-delete').modal('show');
+            },
+            /**
+             * Removes a role
+             */
+            removeRole: function () {
+                const url = 'role/' + this.selectedRole;
+                request.delete(url).then(() => {
+                    let index = this.getIndexOfSelectedRole();
+                    this.roles.splice(index, 1);
+
+                    // Update this.selectedRole if there is any role
+                    if (this.roles.length > 0) {
+                        // if index is same as this.roles.length, this index no longer exists
+                        if (index === this.roles.length) {
+                            index--;
+                        }
+                        this.selectedRole = this.roles[index].role;
+                        this.roleChanged();
+                    }
+
+                    $('#modal-delete').modal('hide');
+                });
+            },
+            showDetouchUser: function (user, i) {
+                this.remove = {
+                    entity: 'user',
+                    name: user.first_name + ' ' + user.last_name,
+                    value: user,
+                    index: i,
+                };
+                if (this.removeWithoutConfirmation) {
+                    this.detouchUser();
+                } else {
+                    $('#modal-delete').modal('show');
+                }
+            },
+            /**
+             * Detouch a user from this.selectedRole
+             */
+            detouchUser: function () {
+                const url = '/role/' + this.selectedRole + '/user';
+                const param = {user_id: this.remove.value.id};
+                request.delete(url, {data: param}).then(() => {
+                    this.users.splice(this.remove.index, 1);
+                });
+
+                $('#modal-delete').modal('hide');
+            },
+            showDetouchPermission: function (permission, i) {
+                this.remove = {
+                    entity: 'permission',
+                    name: permission.name,
+                    value: permission,
+                    index: i,
+                };
+                if (this.removeWithoutConfirmation) {
+                    this.detouchPermission();
+                } else {
+                    $('#modal-delete').modal('show');
+                }
+            },
+            /**
+             * Detouch a permission from this.selectedRole
+             */
+            detouchPermission: function () {
+                const url = '/role/' + this.selectedRole + '/permission';
+                const param = {permission_id: this.remove.value.id};
+                request.delete(url, {data: param}).then(() => {
+                    this.permissions.splice(this.remove.index, 1);
+                });
+
+                $('#modal-delete').modal('hide');
+            },
+        },
+        /**
+         * Loads all the roles at the beginning.
+         * After loading roles, loads all users and permissions.
+         */
+        mounted() {
+            request.get('/role/')
+                .then(response => {
+                    this.roles = response.data;
+
+                    // Load users and permissions after loading roles
+                    // so that they don't slow down loading roles
+                    request.get('/user/').then(r => {
+                        this.allUsers = r.data;
+                    });
+
+                    request.get('/permission/').then(r => {
+                        this.allPermissions = r.data;
+                    });
+                })
+        }
 
     }
 </script>
@@ -603,7 +603,7 @@
         transition: color, background-color 1s;
     }
 
-    .bg-lite{
+    .bg-lite {
         background-color: navajowhite;
     }
 </style>
