@@ -26,7 +26,7 @@
                             <a class="nav-link" href="/auth/login">Login</a>
                         </li>
                         <li class="nav-item text-nowrap">
-                            <a class="nav-link" href="#">Register</a>
+                            <a class="nav-link" href="/auth/register">Register</a>
                         </li>
                     </template>
                 </ul>

@@ -1,4 +1,5 @@
 import Vue from 'vue';
+import Register from './Register.vue';
 import Login from './Login.vue';
 import Dashboard from './Dashboard.vue';
 import User from './User.vue';
@@ -25,6 +26,9 @@ switch (window.location.pathname) {
         break;
     case "/auth/login":
         Component = Login;
+        break;
+    case "/auth/register":
+        Component = Register;
         break;
     default:
         break;
