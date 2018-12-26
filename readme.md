@@ -16,13 +16,13 @@ Move to `vue-ui` directory.
 cd vue-ui
 ```
 To serve the project, run the following command.
-```bash
+```npm
 npm run serve
 ```
 It will be served in `http://localhost:8080`.
 
 To make a production build, run the following command.
-```bash
+```npm
 npm run build
 ```
 
@@ -33,10 +33,10 @@ Move to `react-ui` directory.
 cd react-ui
 ```
 Run the following command.
-```bash
+```npm
 npm start
 ```
 To make a production build, run the following command.
-```bash
+```npm
 npm run build
 ```
