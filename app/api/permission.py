@@ -12,7 +12,7 @@ entities = ('user', 'role', 'permission')
 operations = ('index', 'create', 'read', 'update', 'delete')
 
 
-@bp.route('/all', methods=["GET"])
+@bp.route('/', methods=["GET"])
 @jwt_required()
 def index():
     rows = index_permission()
@@ -33,7 +33,7 @@ def get_users():
     return jsonify(result), 200
 
 
-@bp.route('/create', methods=["POST"])
+@bp.route('/', methods=["POST"])
 @jwt_required()
 def create():
     data = request.get_json()
@@ -41,7 +41,7 @@ def create():
 
     if errors:
         return jsonify(errors), 400
-
+    # TODO: Check Existence
     name = data['name']
     entity = data['entity']
     operation = data['operation']

@@ -25,7 +25,7 @@ def create_app(test_config=null):
     else:
         app.config.from_mapping(test_config)
 
-    CORS(app)
+    CORS(app, supports_credentials=True)
 
     from .db import init_app
     init_app(app)

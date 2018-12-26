@@ -13,22 +13,22 @@
                 </form>
 
                 <ul class="navbar-nav ml-auto">
-                    <!--<template v-if="user">-->
-                    <!--<li class="nav-item text-nowrap pr-2">-->
-                    <!--<span class="navbar-text">Hi <span v-text="user.username"></span>!</span>-->
-                    <!--</li>-->
-                    <!--<li class="nav-item text-nowrap">-->
-                    <!--<a class="nav-link" v-on:click="logout" href="#">Logout</a>-->
-                    <!--</li>-->
-                    <!--</template>-->
-                    <!--<template v-else>-->
-                    <li class="nav-item text-nowrap">
-                        <a class="nav-link" href="#">Login</a>
-                    </li>
-                    <li class="nav-item text-nowrap">
-                        <a class="nav-link" href="#">Register</a>
-                    </li>
-                    <!--</template>-->
+                    <template v-if="user">
+                        <li class="nav-item text-nowrap pr-2">
+                            <span class="navbar-text">Hi <span v-text="user.username"></span>!</span>
+                        </li>
+                        <li class="nav-item text-nowrap">
+                            <a class="nav-link" v-on:click="logout" href="#">Logout</a>
+                        </li>
+                    </template>
+                    <template v-else>
+                        <li class="nav-item text-nowrap">
+                            <a class="nav-link" href="/auth/login">Login</a>
+                        </li>
+                        <li class="nav-item text-nowrap">
+                            <a class="nav-link" href="#">Register</a>
+                        </li>
+                    </template>
                 </ul>
             </div>
         </nav>
@@ -38,7 +38,7 @@
                 <nav class="col-md-3 col-lg-2 mt-5" id="sidebar">
                     <ul class="nav flex-column">
                         <li class="nav-item">
-                            <a class="nav-link" id="nav-dash" href="#">
+                            <a class="nav-link" id="nav-dash" href="/">
                                 <span data-feather="home"></span>
                                 Dashboard
                             </a>
@@ -56,7 +56,7 @@
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" id="nav-permission" href="#">
+                            <a class="nav-link" id="nav-permission" href="/permission">
                                 <span data-feather="globe"></span>
                                 Permissions
                             </a>
@@ -74,9 +74,12 @@
 
 <script>
     import boostrap from 'bootstrap';
+    import {mixin} from "./assets/site.js";
+
 
     export default {
-        name: "vm"
+        name: "vm",
+        mixins: [mixin]
     }
 </script>
 

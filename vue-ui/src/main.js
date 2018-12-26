@@ -1,7 +1,7 @@
-import Vue from 'vue'
-import Dashboard from './Dashboard.vue'
+import Vue from 'vue';
+import Login from './Login.vue';
+import Dashboard from './Dashboard.vue';
 import Permission from "./Permission.vue";
-import {mixin} from "./assets/site.js";
 
 
 Vue.config.productionTip = false;
@@ -15,11 +15,13 @@ switch (window.location.pathname) {
     case "/permission":
         Component = Permission;
         break;
+    case "/auth/login":
+        Component = Login;
+        break;
     default:
         break;
 }
 
 new Vue({
-    mixins: [mixin],
     render: h => h(Component),
 }).$mount('#app');
