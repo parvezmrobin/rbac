@@ -1,3 +1,8 @@
+import axios from "axios";
+
+
+const origin = 'http://localhost:5000';
+
 String.prototype.capitalize = function () {
     return this.charAt(0).toUpperCase() + this.slice(1);
 };
@@ -44,14 +49,14 @@ function getCookie(cname) {
     }
 
     if (token === null) {
-        // openUrl('/auth/login');
+        openUrl('/auth/login');
         return;
     } else {
         window.access_token = token;
     }
 
     window.request = axios.create({
-        baseURL: '/api/v1/',
+        baseURL: origin + '/api/v1/',
         headers: {
             Authorization: 'JWT ' + token
         }
