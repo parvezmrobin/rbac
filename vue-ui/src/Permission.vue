@@ -234,5 +234,7 @@
 </script>
 
 <style scoped>
-
+    h1 .btn {
+        height: 3rem;
+    }
 </style>
