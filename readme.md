@@ -10,14 +10,10 @@ python -m flask run
 It will be served in `http://localhost:5000`.
 
 ## Vue Frontend
-Install `Node.js` version `8.11.0` or above.
-Run the following commands.
+Install `Node.js`.
+Move to `vue-ui` directory.
 ```bash
-npm install -g @vue/cli
-```
-To check the installation, run the following command.
-```bash
-vue --version
+cd vue-ui
 ```
 To serve the project, run the following command.
 ```bash
@@ -31,7 +27,11 @@ npm run build
 ```
 
 ## React Frontend
-Install `Node.js` version `5.2` or above.
+Install `Node.js`.
+Move to `react-ui` directory.
+```bash
+cd react-ui
+```
 Run the following command.
 ```bash
 npm start
