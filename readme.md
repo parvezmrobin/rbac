@@ -36,6 +36,8 @@ Run the following command.
 ```npm
 npm start
 ```
+It will be served in `http://localhost:3000`.
+
 To make a production build, run the following command.
 ```npm
 npm run build
