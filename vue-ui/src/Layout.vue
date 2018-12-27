@@ -74,9 +74,9 @@
 </template>
 
 <script>
-    import boostrap from 'bootstrap';
+    import bootstrap from 'bootstrap';
     import {mixin} from "./assets/site.js";
-
+    window.bootstrap = bootstrap;
 
     export default {
         name: "vm",
