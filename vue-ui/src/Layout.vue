@@ -1,3 +1,4 @@
+<!--suppress HtmlUnknownTarget -->
 <template>
     <div class="container-fluid" id="vm" v-cloak>
         <nav class="navbar navbar-expand-sm navbar-dark bg-dark fixed-top">

@@ -1,64 +1,63 @@
 <template>
-    <Template>
-        <div class="container-fluid" id="vm" v-cloak xmlns:v-on="http://www.w3.org/1999/xhtml">
-            <div class="row">
-                <div class="col-lg-10 col-xl-8 offset-lg-1 offset-xl-2">
-                    <h1 class="text-center">Log in</h1>
-                    <hr class="primary">
-                </div>
-            </div>
 
-            <div class="card shadow col-lg-10 col-xl-8 offset-lg-1 offset-xl-2">
-                <div class="card-body">
-                    <form novalidate v-on:submit.prevent="login">
-                        <div class="form-group row">
-                            <label for="username" class="col-md-4 col-form-label">Username</label>
-                            <div class="col-md-8">
-                                <input type="text" name="username" id="username" class="form-control"
-                                       v-model="username" required>
-                                <div class="invalid-feedback">Username is required</div>
-                            </div>
-                        </div>
-
-                        <div class="form-group row">
-                            <label for="password" class="col-md-4 col-form-label">Password</label>
-                            <div class="col-md-8">
-                                <input type="password" name="password" id="password" class="form-control"
-                                       v-model="password" required>
-                                <div class="invalid-feedback">Password is required</div>
-                            </div>
-                        </div>
-
-                        <div class="form-check row">
-                            <div class="offset-md-4 col-md-8">
-                                <div class="mx-md-2 my-3">
-                                    <input class="form-check-input" type="checkbox" value="" id="remember-me"
-                                           v-model="rememberMe">
-                                    <label class="form-check-label" for="remember-me">
-                                        Remember Me
-                                    </label>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="alert alert-danger" v-show="error" role="alert">
-                            <span>Username and password doesn't match!</span>
-                        </div>
-
-                        <div class="form-group row">
-                            <div class="col-md-8 offset-md-4">
-                                <input class="btn btn-outline-primary" type="submit" value="Register">
-                            </div>
-                        </div>
-                    </form>
-                </div>
+    <div class="container-fluid" id="vm" v-cloak xmlns:v-on="http://www.w3.org/1999/xhtml">
+        <div class="row">
+            <div class="col-lg-10 col-xl-8 offset-lg-1 offset-xl-2">
+                <h1 class="text-center">Log in</h1>
+                <hr class="primary">
             </div>
         </div>
-    </Template>
+
+        <div class="card shadow col-lg-10 col-xl-8 offset-lg-1 offset-xl-2">
+            <div class="card-body">
+                <form novalidate v-on:submit.prevent="login">
+                    <div class="form-group row">
+                        <label for="username" class="col-md-4 col-form-label">Username</label>
+                        <div class="col-md-8">
+                            <input type="text" name="username" id="username" class="form-control"
+                                   v-model="username" required>
+                            <div class="invalid-feedback">Username is required</div>
+                        </div>
+                    </div>
+
+                    <div class="form-group row">
+                        <label for="password" class="col-md-4 col-form-label">Password</label>
+                        <div class="col-md-8">
+                            <input type="password" name="password" id="password" class="form-control"
+                                   v-model="password" required>
+                            <div class="invalid-feedback">Password is required</div>
+                        </div>
+                    </div>
+
+                    <div class="form-check row">
+                        <div class="offset-md-4 col-md-8">
+                            <div class="mx-md-2 my-3">
+                                <input class="form-check-input" type="checkbox" value="" id="remember-me"
+                                       v-model="rememberMe">
+                                <label class="form-check-label" for="remember-me">
+                                    Remember Me
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="alert alert-danger" v-show="error" role="alert">
+                        <span>Username and password doesn't match!</span>
+                    </div>
+
+                    <div class="form-group row">
+                        <div class="col-md-8 offset-md-4">
+                            <input class="btn btn-outline-primary" type="submit" value="Register">
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
 </template>
 
 <script>
-    import Template from "./Template.vue";
     import axios from "axios";
     import $ from 'jquery';
 
@@ -70,7 +69,6 @@
 
     export default {
         name: "Login",
-        components: {Template},
         data() {
             return {
                 username: '',
