@@ -17,18 +17,18 @@
                     <tr>
                         <th>First Name</th>
                         <th>Last Name</th>
-                        <th>Email</th>
                         <th>Username</th>
+                        <th>Email</th>
                         <th>Edit</th>
                         <th>Delete</th>
                     </tr>
                     </thead>
                     <!--TODO: Implement User edit and delete-->
                     <tr v-for="user in users" v-bind:key="user.id" v-bind:id="user.id">
-                        <td @click="loadRoles(user.id)">{{ user.first_name }}</td>
-                        <td @click="loadRoles(user.id)">{{ user.last_name }}</td>
-                        <td @click="loadRoles(user.id)"><a :href="'mailto:'+ user.email">{{ user.email }}</a></td>
-                        <td @click="loadRoles(user.id)">{{ user.username }}</td>
+                        <td title="Click to see roles" @click="loadRoles(user.id, $event)">{{ user.first_name }}</td>
+                        <td title="Click to see roles" @click="loadRoles(user.id, $event)">{{ user.last_name }}</td>
+                        <td title="Click to see roles" @click="loadRoles(user.id, $event)">{{ user.username }}</td>
+                        <td><a :href="'mailto:'+ user.email">{{ user.email }}</a></td>
                         <td><a href="#">Edit</a></td>
                         <td><a href="#">Delete</a></td>
                     </tr>
@@ -85,9 +85,11 @@
         data() {
             return {
                 users: [],
+                id: -1,
                 placeholder: {},
                 operation: '',
-                roles: []
+                roles: [],
+                roleShown: false,
             }
         },
         methods: {
@@ -119,50 +121,86 @@
             delete: function () {
 
             },
-            loadRoles: function (user_id) {
+            loadRoles: function (user_id, e) {
+                if (this.id === user_id) {
+                    if (this.roleShown) {
+                        this.hideRole();
+                        return;
+                    }
+
+                    this.renderRole(e);
+                    return;
+                }
+
+                this.id = user_id;
                 const url = 'user/' + user_id + '/role';
                 request.get(url).then(r => {
                     this.roles = r.data;
-
-                    let role_text = this.roles.reduce(
-                        (txt, role) => (txt === '') ? role.role : txt + ', ' + role.role,
-                        '' // initial value
-                    );
-                    let row;
-                    if (role_text === '') {
-                        row =
-                            '<tr title="Press Esc to close." class="bg-warning text-white" id="roles">' +
-                            '    <td colspan="6" class="rounded-bottom">No Role Associated</td>' +
-                            '</tr>';
-                    } else {
-                        row =
-                            `<tr title="Press Esc to close." class="bg-info text-white" id="roles">
+                    this.renderRole(e);
+                });
+            },
+            renderRole: function (e) {
+                // generate innerText
+                let role_text = this.roles.reduce(
+                    (txt, role) => (txt === '') ? role.role : txt + ', ' + role.role,
+                    '' // initial value
+                );
+                let row;
+                if (role_text === '') {
+                    row =
+                        '<tr title="Press Esc to close." data-placement="right" class="bg-warning text-white" id="roles">' +
+                        '    <td colspan="6" class="rounded-bottom">No Role Associated</td>' +
+                        '</tr>';
+                } else {
+                    row =
+                        `<tr title="Press Esc to close." data-placement="right" class="bg-info text-white" id="roles">
                                 <td colspan="6" class="rounded-bottom">${role_text}</td>
                             </tr>`;
-                    }
+                }
+                // Remove previously shown roles
+                $('[title]').tooltip('hide');
+                $('.bg-info').removeClass('bg-info text-white');
+                $('#roles').remove();
 
-                    $('#roles').remove();
-                    $('#' + user_id).after(row);
-                });
+                // Render
+                const $this = $(e.target).parent().children();
+                $this.attr('id', 'selected').addClass('bg-info text-white');
+                $('#' + this.id).after(row);
+                $('tr[title]').tooltip({boundary: 'window'});
+
+                this.roleShown = true;
+            },
+            hideRole: function () {
+                $('.bg-info').removeClass('bg-info text-white');
+                $('[title]').tooltip('hide');
+                $('#roles').remove();
+                this.roleShown = false;
             }
         },
         mounted() {
             request.get('/user/')
                 .then(response => {
                     this.users = response.data;
-                })
-        }
-    }
+                    this.$nextTick(() => {  // init tooltip when this.users is rendered
+                        $('td[title]').tooltip({boundary: 'window'});
+                    })
+                });
 
-    $(document).keyup(function (e) {
-        if (e.key === 'Escape') {
-            $('#roles').remove();
+            $(document).keyup(function (e) {
+                if (e.key === 'Escape' && this.roleShown) {
+                    this.hideRole();
+                }
+            });
         }
-    })
+    };
 </script>
 
 <style scoped>
-    tr td:not(:last-child):not(:nth-last-child(2)) {
+    .bg-info a {
+        color: var(--warning);
+    }
+
+    tr td[title] {
         cursor: pointer;
     }
 </style>
