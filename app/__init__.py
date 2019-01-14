@@ -1,8 +1,8 @@
 from datetime import timedelta
 
 from flask import Flask
-from flask_jwt import JWT
 from flask_cors import CORS
+from flask_jwt import JWT
 
 true, false, null = True, False, None
 
@@ -38,11 +38,7 @@ def create_app(test_config=null):
     app.register_blueprint(blog.bp)
     app.register_blueprint(user.bp)
     app.register_blueprint(role.bp)
-
-    from .models import user as user_model, role as role_model
     app.register_blueprint(permission.bp)
-    app.register_blueprint(user_model.bp)
-    app.register_blueprint(role_model.bp)
 
     from .api import user as user_api, auth as auth_api, role as role_api, permission as permission_api
     app.register_blueprint(user_api.bp)

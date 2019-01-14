@@ -1,5 +1,4 @@
 from app.db import get_db
-from flask import Blueprint
 
 columns = ['id', 'name', 'entity', 'operation', 'info']
 

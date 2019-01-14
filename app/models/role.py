@@ -1,7 +1,4 @@
 from app.db import get_db
-from flask import Blueprint
-
-bp = Blueprint('model.role', __name__)
 
 columns = ['role']
 
