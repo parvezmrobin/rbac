@@ -6,6 +6,8 @@ import User from './User.vue';
 import Role from './Role.vue';
 import Permission from "./Permission.vue";
 
+import Layout from './Layout.vue';
+
 
 Vue.config.productionTip = false;
 
@@ -35,5 +37,5 @@ switch (window.location.pathname) {
 }
 
 new Vue({
-    render: h => h(Component),
+    render: h => h(Layout, [h(Component)]),
 }).$mount('#app');

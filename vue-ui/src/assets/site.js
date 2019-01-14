@@ -79,8 +79,8 @@ const mixin = {
         }
     },
     mounted() {
-        if (typeof request !== "undefined") {
-            request.get('auth/user').then(r => {
+        if (typeof window.request !== "undefined") {
+            window.request.get('auth/user').then(r => {
                 this.user = r.data;
             })
         }

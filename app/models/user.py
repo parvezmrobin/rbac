@@ -1,9 +1,6 @@
 from werkzeug.security import generate_password_hash
 
 from app.db import get_db
-from flask import Blueprint
-
-bp = Blueprint('model.user', __name__)
 
 columns = ['id', 'first_name', 'last_name', 'email', 'username']
 
@@ -53,7 +50,8 @@ def create(username, password, first_name, last_name, email):
     :param first_name:
     :param last_name:
     :param email:
-    :return: [int] user.id
+    :return: user.id
+    :rtype: int
     """
     db = get_db()
     hashed_password = generate_password_hash(password)
@@ -61,3 +59,24 @@ def create(username, password, first_name, last_name, email):
     cursor = db.execute(query, (username, hashed_password, first_name, last_name, email))
     db.commit()
     return cursor.lastrowid
+
+
+def update(user_id, first_name, last_name, email):
+    db = get_db()
+    query = "UPDATE user SET first_name=?, last_name=?, email=? WHERE id=?"
+    db.execute(query, (first_name, last_name, email, user_id))
+    db.commit()
+
+
+def delete(user_id):
+    db = get_db()
+    query = "DELETE FROM user where id=?"
+    db.execute(query, (user_id,))
+    db.commit()
+
+
+def get_roles(user_id):
+    db = get_db()
+    query = "SELECT role.* FROM role INNER JOIN role_user ru on role.role = ru.role WHERE ru.user_id=?"
+    result = db.execute(query, (user_id,)).fetchall()
+    return result

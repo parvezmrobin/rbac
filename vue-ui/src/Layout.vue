@@ -1,3 +1,4 @@
+<!--suppress HtmlUnknownTarget -->
 <template>
     <div class="container-fluid" id="vm" v-cloak>
         <nav class="navbar navbar-expand-sm navbar-dark bg-dark fixed-top">
@@ -73,9 +74,9 @@
 </template>
 
 <script>
-    import boostrap from 'bootstrap';
+    import bootstrap from 'bootstrap';
     import {mixin} from "./assets/site.js";
-
+    window.bootstrap = bootstrap;
 
     export default {
         name: "vm",

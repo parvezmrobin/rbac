@@ -1,126 +1,124 @@
 <template>
-    <Template>
-        <div class="container-fluid pt-3">
-            <div class="row">
-                <div class="col">
-                    <h1 class="text-center">Roles</h1>
+    <div class="container-fluid pt-3">
+        <div class="row">
+            <div class="col">
+                <h1 class="text-center">Roles</h1>
+            </div>
+        </div>
+        <div class="row bg-lite rounded-top" :class="{'rounded-bottom': !selectedRole}">
+            <div class="col-lg-2 col-md-4 my-2 text-center text-md-left">
+                <button type="button" class="btn btn-primary" @click="showCreateRole">
+                    <span data-feather="plus-square"></span>
+                    Create Role
+                </button>
+            </div>
+            <div class="col-lg-4 col-md-8 my-2">
+                <div class="input-group">
+                    <div class="input-group-prepend">
+                        <label for="role" class="input-group-text">Role</label>
+                    </div>
+                    <select class="form-control" v-model="selectedRole" @change="roleChanged" name="role" id="role">
+                        <option v-bind:key="r.role" v-for="r in roles" :value="r.role"
+                                v-text="r.role.capitalize()"></option>
+                    </select>
                 </div>
             </div>
-            <div class="row bg-lite rounded-top" :class="{'rounded-bottom': !selectedRole}">
-                <div class="col-lg-2 col-md-4 my-2 text-center text-md-left">
-                    <button type="button" class="btn btn-primary" @click="showCreateRole">
-                        <span data-feather="plus-square"></span>
-                        Create Role
+            <div class="col-lg-6 d-inline-flex justify-content-lg-end justify-content-center my-2">
+                <div class="btn-group">
+                    <button type="button" class="btn btn-outline-info" @click="showEditRole">
+                        <span data-feather="edit"></span>
+                        Edit
+                    </button>
+                    <button type="button" class="btn btn-outline-danger" @click="showDeleteRole">
+                        <span data-feather="delete"></span>
+                        Delete
+                    </button>
+                    <button type="button" class="btn btn-outline-success" @click="showAddUser">
+                        <span data-feather="user-plus"></span>
+                        Add User
+                    </button>
+                    <button type="button" class="btn btn-outline-success" @click="showAddPermission">
+                        <span data-feather="file-plus"></span>
+                        Add Permission
                     </button>
                 </div>
-                <div class="col-lg-4 col-md-8 my-2">
-                    <div class="input-group">
-                        <div class="input-group-prepend">
-                            <label for="role" class="input-group-text">Role</label>
-                        </div>
-                        <select class="form-control" v-model="selectedRole" @change="roleChanged" name="role" id="role">
-                            <option v-for="r in roles" :value="r.role"
-                                    v-text="r.role.capitalize()"></option>
-                        </select>
-                    </div>
-                </div>
-                <div class="col-lg-6 d-inline-flex justify-content-lg-end justify-content-center my-2">
-                    <div class="btn-group">
-                        <button type="button" class="btn btn-outline-info" @click="showEditRole">
-                            <span data-feather="edit"></span>
-                            Edit
-                        </button>
-                        <button type="button" class="btn btn-outline-danger" @click="showDeleteRole">
-                            <span data-feather="delete"></span>
-                            Delete
-                        </button>
-                        <button type="button" class="btn btn-outline-success" @click="showAddUser">
-                            <span data-feather="user-plus"></span>
-                            Add User
-                        </button>
-                        <button type="button" class="btn btn-outline-success" @click="showAddPermission">
-                            <span data-feather="file-plus"></span>
-                            Add Permission
-                        </button>
-                    </div>
-                </div>
-
             </div>
-            <div class="row bg-lite rounded-bottom" v-show="selectedRole">
-                <div class="col">
-                    <ul class="nav nav-pills py-3">
-                        <li class="nav-item">
-                            <a class="nav-link active" data-toggle="pill" href="#pills-permission">
-                                Permissions
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" data-toggle="pill" href="#pills-user">
-                                Users
-                            </a>
-                        </li>
 
-                        <li class="navbar-text pl-2" v-if="role">
-                            <em>of role <span v-text="selectedRole.capitalize()"></span></em>
-                        </li>
-                    </ul>
-                </div>
+        </div>
+        <div class="row bg-lite rounded-bottom" v-show="selectedRole">
+            <div class="col">
+                <ul class="nav nav-pills py-3">
+                    <li class="nav-item">
+                        <a class="nav-link active" data-toggle="pill" href="#pills-permission">
+                            Permissions
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" data-toggle="pill" href="#pills-user">
+                            Users
+                        </a>
+                    </li>
+
+                    <li class="navbar-text pl-2" v-if="role">
+                        <em>of role <span v-text="selectedRole.capitalize()"></span></em>
+                    </li>
+                </ul>
             </div>
-            <div class="row mt-2" v-show="selectedRole">
-                <div class="col table-responsive">
+        </div>
+        <div class="row mt-2" v-show="selectedRole">
+            <div class="col table-responsive">
 
-                    <div class="tab-content">
-                        <div class="tab-pane fade show active" id="pills-permission">
-                            <table class="table">
-                                <thead>
-                                <tr>
-                                    <th>Permission</th>
-                                    <th>Entity</th>
-                                    <th>Operation</th>
-                                    <th></th>
-                                </tr>
-                                </thead>
-                                <tbody>
-                                <tr v-for="(permission, i) in permissions">
-                                    <td v-text="permission.name.capitalize()"></td>
-                                    <td v-text="permission.entity.capitalize()"></td>
-                                    <td v-text="permission.operation.capitalize()"></td>
-                                    <td>
-                                        <button class="btn btn-outline-warning"
-                                                @click="showDetouchPermission(permission, i)">Remove
-                                        </button>
-                                    </td>
-                                </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                        <div class="tab-pane fade" id="pills-user">
-                            <table class="table">
-                                <thead>
-                                <tr>
-                                    <th>First Name</th>
-                                    <th>Last Name</th>
-                                    <th>Username</th>
-                                    <th>Email</th>
-                                    <th></th>
-                                </tr>
-                                </thead>
-                                <tbody>
-                                <tr v-for="(user, i) in users">
-                                    <td v-text="user.first_name"></td>
-                                    <td v-text="user.last_name"></td>
-                                    <td v-text="user.username"></td>
-                                    <td>
-                                        <a :href="'mailto:' + user.email" v-text="user.email"></a>
-                                    </td>
-                                    <td>
-                                        <button class="btn btn-outline-warning" @click="showDetouchUser(user, i)">Remove
-                                        </button>
-                                    </td>
-                                </tr>
-                                </tbody>
-                            </table>
-                        </div>
+                <div class="tab-content">
+                    <div class="tab-pane fade show active" id="pills-permission">
+                        <table class="table">
+                            <thead>
+                            <tr>
+                                <th>Permission</th>
+                                <th>Entity</th>
+                                <th>Operation</th>
+                                <th></th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr v-bind:key="permission.id" v-for="(permission, i) in permissions">
+                                <td v-text="permission.name.capitalize()"></td>
+                                <td v-text="permission.entity.capitalize()"></td>
+                                <td v-text="permission.operation.capitalize()"></td>
+                                <td>
+                                    <button class="btn btn-outline-warning"
+                                            @click="showDetouchPermission(permission, i)">Remove
+                                    </button>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="tab-pane fade" id="pills-user">
+                        <table class="table">
+                            <thead>
+                            <tr>
+                                <th>First Name</th>
+                                <th>Last Name</th>
+                                <th>Username</th>
+                                <th>Email</th>
+                                <th></th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr v-bind:key="user.id" v-for="(user, i) in users">
+                                <td v-text="user.first_name"></td>
+                                <td v-text="user.last_name"></td>
+                                <td v-text="user.username"></td>
+                                <td>
+                                    <a :href="'mailto:' + user.email" v-text="user.email"></a>
+                                </td>
+                                <td>
+                                    <button class="btn btn-outline-warning" @click="showDetouchUser(user, i)">Remove
+                                    </button>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
                     </div>
                 </div>
             </div>
@@ -143,7 +141,7 @@
                     </div>
                     <div class="modal-body">
                         <form class="needs-validation" novalidate id="form-create">
-                            <div v-for="(val, key) in role.value" class="form-group row">
+                            <div v-bind:key="key" v-for="(val, key) in role.value" class="form-group row">
                                 <label :for="key" class="col-md-4 col-form-label" v-text="key.capitalize()"></label>
                                 <div class="col-md-8">
                                     <!--suppress HtmlFormInputWithoutLabel -->
@@ -265,14 +263,12 @@
                 </div>
             </div>
         </div>
-
-    </Template>
+    </div>
 </template>
 
 <script>
     import Vue from "vue";
     import VueSelect from "vue-select";
-    import Template from './Template';
     import $ from 'jquery';
 
     Vue.component('v-select', VueSelect);
@@ -280,7 +276,6 @@
 
     export default {
         name: "Role",
-        components: {Template},
         data() {
             return {
                 roles: [],          // all roles

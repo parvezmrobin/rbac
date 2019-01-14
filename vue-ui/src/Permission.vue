@@ -1,124 +1,122 @@
 <template>
-    <Template>
-        <div class="container-fluid pt-3">
-            <div class="row">
-                <div class="col">
-                    <h1 class="text-center">
-                        Permission
-                        <button type="button" class="btn btn-primary float-sm-right" v-on:click="showCreate">
-                            Create Permission
+
+    <div class="container-fluid pt-3">
+        <div class="row">
+            <div class="col">
+                <h1 class="text-center">
+                    Permission
+                    <button type="button" class="btn btn-primary float-sm-right" v-on:click="showCreate">
+                        Create Permission
+                    </button>
+                </h1>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Entity</th>
+                        <th>Operation</th>
+                        <th>Edit</th>
+                        <th>Delete</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr v-bind:key="permission.id" v-for="(permission, i) in permissions">
+                        <td>{{ permission.name.capitalize() }}</td>
+                        <td>{{ permission.entity.capitalize() }}</td>
+                        <td>{{ permission.operation.capitalize() }}</td>
+                        <td><a href="#" class="btn btn-outline-info" v-on:click="showEdit(i)">Edit</a></td>
+                        <td><a href="#" class="btn btn-outline-danger" v-on:click="showRemove(i)">Delete</a></td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+
+        <!-- Modal -->
+        <div class="modal fade" id="modal-create" tabindex="-1" role="dialog" aria-labelledby="modal-delete-label"
+             aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="exampleModalLabel">
+                            <span v-text="operation"></span> Permission
+                        </h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
                         </button>
-                    </h1>
-                </div>
-            </div>
-            <div class="row">
-                <div class="col table-responsive">
-                    <table class="table table-hover">
-                        <thead>
-                        <tr>
-                            <th>Name</th>
-                            <th>Entity</th>
-                            <th>Operation</th>
-                            <th>Edit</th>
-                            <th>Delete</th>
-                        </tr>
-                        </thead>
-                        <tr v-for="(permission, i) in permissions">
-                            <td>{{ permission.name.capitalize() }}</td>
-                            <td>{{ permission.entity.capitalize() }}</td>
-                            <td>{{ permission.operation.capitalize() }}</td>
-                            <td><a href="#" class="btn btn-outline-info" v-on:click="showEdit(i)">Edit</a></td>
-                            <td><a href="#" class="btn btn-outline-danger" v-on:click="showRemove(i)">Delete</a></td>
-                        </tr>
-                    </table>
-                </div>
-            </div>
-
-
-            <!-- Modal -->
-            <div class="modal fade" id="modal-create" tabindex="-1" role="dialog" aria-labelledby="modal-delete-label"
-                 aria-hidden="true">
-                <div class="modal-dialog" role="document">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <h5 class="modal-title" id="exampleModalLabel">
-                                <span v-text="operation"></span> Permission
-                            </h5>
-                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                <span aria-hidden="true">&times;</span>
-                            </button>
-                        </div>
-                        <div class="modal-body">
-                            <form class="needs-validation" novalidate id="form-create">
-                                <div class="form-group row">
-                                    <label for="name" class="col-md-4 col-form-label">Name</label>
-                                    <div class="col-md-8">
-                                        <input type="text" id="name" class="form-control"
-                                               v-model="permission.name" required>
-                                        <div class="invalid-feedback"></div>
-                                    </div>
-                                </div>
-                                <div class="form-group row">
-                                    <label for="entity" class="col-md-4 col-form-label">Entity</label>
-                                    <div class="col-md-8">
-                                        <input type="text" id="entity" class="form-control"
-                                               v-model="permission.entity" required>
-                                        <div class="invalid-feedback"></div>
-                                    </div>
-                                </div>
-                                <div class="form-group row">
-                                    <label for="operation" class="col-md-4 col-form-label">Operation</label>
-                                    <div class="col-md-8">
-                                        <input type="text" id="operation" class="form-control"
-                                               v-model="permission.operation" required>
-                                        <div class="invalid-feedback"></div>
-                                    </div>
-                                </div>
-                            </form>
-                        </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Discard</button>
-                            <button type="button" class="btn btn-primary" v-on:click="doOperation"
-                                    v-text="operation"></button>
-                        </div>
                     </div>
-                </div>
-            </div>
-
-            <div class="modal" tabindex="-1" role="dialog" id="modal-delete">
-                <div class="modal-dialog" role="document">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <h5 class="modal-title">Delete Permission</h5>
-                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                <span aria-hidden="true">&times;</span>
-                            </button>
-                        </div>
-                        <div class="modal-body">
-                            <p>Are your sure to delete permission '<span v-text="permission.name"></span>'?</p>
-                        </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-primary" data-dismiss="modal">Nope</button>
-                            <button type="button" class="btn btn-outline-danger" v-on:click="remove()">Delete</button>
-                        </div>
+                    <div class="modal-body">
+                        <form class="needs-validation" novalidate id="form-create">
+                            <div class="form-group row">
+                                <label for="name" class="col-md-4 col-form-label">Name</label>
+                                <div class="col-md-8">
+                                    <input type="text" id="name" class="form-control"
+                                           v-model="permission.name" required>
+                                    <div class="invalid-feedback"></div>
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label for="entity" class="col-md-4 col-form-label">Entity</label>
+                                <div class="col-md-8">
+                                    <input type="text" id="entity" class="form-control"
+                                           v-model="permission.entity" required>
+                                    <div class="invalid-feedback"></div>
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label for="operation" class="col-md-4 col-form-label">Operation</label>
+                                <div class="col-md-8">
+                                    <input type="text" id="operation" class="form-control"
+                                           v-model="permission.operation" required>
+                                    <div class="invalid-feedback"></div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Discard</button>
+                        <button type="button" class="btn btn-primary" v-on:click="doOperation"
+                                v-text="operation"></button>
                     </div>
                 </div>
             </div>
         </div>
-    </Template>
+
+        <div class="modal" tabindex="-1" role="dialog" id="modal-delete">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Delete Permission</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <p>Are your sure to delete permission '<span v-text="permission.name"></span>'?</p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-primary" data-dismiss="modal">Nope</button>
+                        <button type="button" class="btn btn-outline-danger" v-on:click="remove()">Delete</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </template>
 
 <script>
-    const nav = 'nav-permission';
     const request = window.request;
 
-    import Template from './Template';
     import $ from "jquery";
 
 
     export default {
         name: "Permission",
-        components: {Template},
         data() {
             return {
                 permissions: [],
