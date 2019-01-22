@@ -14,7 +14,7 @@ function getConnection() {
 }
 
 function fetchOne(query, params) {
-    const fetchAll = true;
+    const fetchAll = false;
     return fetch(query, params, fetchAll);
 }
 
@@ -47,7 +47,15 @@ const UserModel = {
             }
 
             return rows;
-        })
+        });
+    },
+    find: function (id) {
+        const query = "SELECT id, username, email, first_name, last_name, info FROM user WHERE id=?";
+        const params = [id];
+        return fetchOne(query, params).then(row => {
+            row.info = JSON.parse(row.info);
+            return row;
+        });
     }
 };
 
