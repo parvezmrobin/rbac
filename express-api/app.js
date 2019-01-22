@@ -26,13 +26,21 @@ app.use(function (req, res, next) {
 // error handler
 // noinspection JSUnusedLocalSymbols
 app.use(function (err, req, res, next) {
-    // set locals, only providing error in development
-    res.locals.message = err.message;
-    res.locals.error = req.app.get('env') === 'development' ? err : {};
-
-    // render the error page
+    // generate the error
     res.status(err.status || 500);
-    res.render('error');
+    const error = {};
+
+    Object.getOwnPropertyNames(err).forEach(function (key) {
+        error[key] = err[key];
+    });
+
+    error.stack = error.stack.split("\n").map(str => str.trim());
+
+    // only providing error in development
+    res.json({
+        message: error.message,
+        error: req.app.get('env') === 'development' ? error : {}
+    });
 });
 
 module.exports = app;

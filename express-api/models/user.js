@@ -13,33 +13,41 @@ function getConnection() {
     return new sqlite3.Database(path, errorHandler);
 }
 
-function fetchAll(query, params) {
-    const connection = getConnection();
+function fetchOne(query, params) {
+    const fetchAll = true;
+    return fetch(query, params, fetchAll);
+}
+
+function fetch(query, params, all = true) {
     return new Promise(function (resolve, reject) {
-        const responseObj = {};
-        connection.all(query, params, function cb(err, rows) {
-            if (err) {
-                responseObj.error = err;
-                reject(responseObj);
-            } else {
-                responseObj.statement = this;
-                responseObj.rows = rows;
-                resolve(responseObj);
-            }
+        const connection = getConnection();
+        const callback = function cb(err, rows) {
             connection.close();
-        });
+            if (err) {
+                reject(err);
+            } else {
+                resolve(rows);
+            }
+        };
+        if (all) {
+            connection.all(query, params, callback);
+        } else {
+            connection.get(query, params, callback);
+        }
     });
 }
 
 const UserModel = {
-    index: async function () {
+    index: function () {
         const query = "SELECT id, username, email, first_name, last_name, info FROM user";
         const params = [];
-        const result = await fetchAll(query, params);
-        for (let row of result.rows) {
-            row.info = JSON.parse(row.info);
-        }
-        return result.rows;
+        return fetch(query, params).then(rows => {
+            for (let row of rows) {
+                row.info = JSON.parse(row.info);
+            }
+
+            return rows;
+        })
     }
 };
 
