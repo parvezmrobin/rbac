@@ -6,7 +6,7 @@ const model = {
             return mongoose.connect(process.env.CONN_URL, {useNewUrlParser: true});
         },
         close: function () {
-            mongoose.connection.close();
+            return mongoose.connection.close();
         }
     }
 };
