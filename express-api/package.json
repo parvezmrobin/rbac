@@ -3,18 +3,24 @@
   "version": "0.0.1",
   "private": true,
   "scripts": {
+    "init": "node ./console/init",
     "start": "node ./bin/www",
     "dev": "nodemon ./bin/www"
   },
   "dependencies": {
+    "bcrypt": "^3.0.3",
+    "bson-ext": "^2.0.1",
     "cookie-parser": "~1.4.3",
     "debug": "~2.6.9",
+    "dotenv": "^6.2.0",
     "express": "~4.16.0",
     "http-errors": "~1.6.2",
     "jsonwebtoken": "^8.4.0",
+    "mongodb": "^3.1.13",
+    "mongoose": "^5.4.7",
     "morgan": "~1.9.0",
-    "bcrypt": "^3.0.3",
     "node-gyp": "^3.8.0",
+    "npm": "^6.7.0",
     "sqlite3": "^4.0.6"
   },
   "devDependencies": {
