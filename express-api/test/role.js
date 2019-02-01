@@ -9,7 +9,7 @@ chai.should();
 chai.use(chaiHttp);
 
 describe('Role', function () {
-    beforeEach(done => {
+    before(done => {
         Role.connect().then(() => {
             Role.deleteMany({}).then(() => {
                 Role.close().then(done);
@@ -43,17 +43,49 @@ describe('Role', function () {
                     res.body.users.should.be.an('array');
                     res.body.users.should.have.length(0);
 
-                    chai.request(app)
-                        .get('/api/v1/roles')
-                        .end((err, res) => {
-                            res.should.have.status(200);
-                            res.body.should.be.an('array');
-                            res.body.length.should.be.equals(1);
-                            res.body[0].should.be.include({role: 'admin'});
-                            res.body[0].should.not.include({role: 'writer'});
-                            res.body[0].should.not.have.property('users');
-                            done();
-                        });
+                    done();
+                });
+        });
+
+        it('should check if a role is created', function (done) {
+            chai.request(app)
+                .get('/api/v1/roles')
+                .end((err, res) => {
+                    res.should.have.status(200);
+                    res.body.should.be.an('array');
+                    res.body.length.should.be.equals(1);
+                    res.body[0].should.be.include({role: 'admin'});
+                    res.body[0].should.not.include({role: 'writer'});
+                    res.body[0].should.not.have.property('users');
+
+                    done();
+                });
+        });
+
+        it('should access newly created role', function (done) {
+            chai.request(app)
+                .get('/api/v1/roles/admin')
+                .end((err, res) => {
+                    res.should.have.status(200);
+                    res.body.should.be.an('object');
+                    res.body.should.have.all.keys(['_id', 'role', '__v']);
+                    res.body.should.be.include({role: 'admin'});
+                    res.body.should.not.include({role: 'writer'});
+                    res.body.should.not.have.property('users');
+
+                    done();
+                });
+        });
+
+        it('should receive error while accessing a non existing role', function (done) {
+            chai.request(app)
+                .get('/api/v1/roles/writer')
+                .end((err, res) => {
+                    res.should.have.status(404);
+                    res.body.message.should.be.equals('Not Found');
+                    res.body.error.should.be.an('object').that.is.empty;
+
+                    done();
                 });
         });
     });

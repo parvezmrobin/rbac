@@ -11,14 +11,28 @@ router.get('/', function (request, response) {
     })
 });
 
-router.post('/', function (request, response) {
-   Role.connect().then(() => {
-       const role = {role: request.body.role, users: []};
-       Role.create(role).then((res) => {
-           Role.close();
-           response.status(201).json(res);
-       })
-   })
+router.get('/:role', function (request, response, next) {
+    Role.connect().then(() => {
+        Role.findOne({role: request.params.role}, {users: 0}).then(result => {
+            Role.close();
+            if (result) {
+                response.json(result);
+            } else {
+                next();
+            }
+        })
+    })
 });
+
+router.post('/', function (request, response) {
+    Role.connect().then(() => {
+        const role = {role: request.body.role, users: []};
+        Role.create(role).then((res) => {
+            Role.close();
+            response.status(201).json(res);
+        })
+    })
+});
+
 
 module.exports = router;
