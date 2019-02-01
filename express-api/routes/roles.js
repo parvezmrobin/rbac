@@ -34,5 +34,21 @@ router.post('/', function (request, response) {
     })
 });
 
+router.put('/:role', function (request, response, next) {
+    Role.connect().then(() => {
+        const query = {role: request.params.role};
+        const update = {$set: {role: request.body.role}};
+
+        Role.updateOne(query, update).then(result => {
+            Role.close();
+            if (result.n) {
+                response.json(result);
+            } else {
+                next();
+            }
+        })
+    })
+});
+
 
 module.exports = router;

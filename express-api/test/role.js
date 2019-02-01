@@ -18,7 +18,7 @@ describe('Role', function () {
     });
 
     describe('GET Role', function () {
-        it('should list the roles', function (done) {
+        it('should get an empty list of roles', function (done) {
             chai.request(app)
                 .get('/api/v1/roles')
                 .end((err, res) => {
@@ -89,4 +89,27 @@ describe('Role', function () {
                 });
         });
     });
+
+    describe('PUT Role', function () {
+        it('should edit role `admin` to `administrator`', function (done) {
+            chai.request(app)
+                .put('/api/v1/roles/admin')
+                .send({role: 'administrator'})
+                .end(done);
+
+        });
+
+        it('should not edit a non-existing role', function (done) {
+            chai.request(app)
+                .put('/api/v1/roles/writer')
+                .send({role: 'administrator'})
+                .end((err, res) => {
+                    res.should.have.status(404);
+                    res.body.message.should.be.equals('Not Found');
+                    res.body.error.should.be.an('object').that.is.empty;
+
+                    done();
+                });
+        });
+    })
 });
