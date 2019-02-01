@@ -42,7 +42,20 @@ router.put('/:role', function (request, response, next) {
         Role.updateOne(query, update).then(result => {
             Role.close();
             if (result.n) {
-                response.json(result);
+                response.json({});
+            } else {
+                next();
+            }
+        })
+    })
+});
+
+router.delete('/:role', function (request, response, next) {
+    Role.connect().then(() => {
+        Role.deleteOne({role: request.params.role}).then(result => {
+            Role.close();
+            if (result.n) {
+                response.json({});
             } else {
                 next();
             }

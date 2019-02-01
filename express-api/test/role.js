@@ -95,7 +95,12 @@ describe('Role', function () {
             chai.request(app)
                 .put('/api/v1/roles/admin')
                 .send({role: 'administrator'})
-                .end(done);
+                .end(((err, res) => {
+                    res.should.have.status(200);
+                    res.body.should.be.empty;
+
+                    done();
+                }));
 
         });
 
@@ -103,6 +108,43 @@ describe('Role', function () {
             chai.request(app)
                 .put('/api/v1/roles/writer')
                 .send({role: 'administrator'})
+                .end((err, res) => {
+                    res.should.have.status(404);
+                    res.body.message.should.be.equals('Not Found');
+                    res.body.error.should.be.an('object').that.is.empty;
+
+                    done();
+                });
+        });
+    });
+
+    describe('DELETE Role', function () {
+        it('should not delete a non-existing role', function (done) {
+            chai.request(app)
+                .put('/api/v1/roles/writer')
+                .end((err, res) => {
+                    res.should.have.status(404);
+                    res.body.message.should.be.equals('Not Found');
+                    res.body.error.should.be.an('object').that.is.empty;
+
+                    done();
+                });
+        });
+
+        it('should delete role `administrator`', function (done) {
+            chai.request(app)
+                .put('/api/v1/roles/administrator')
+                .end((err, res) => {
+                    res.should.have.status(200);
+                    res.body.should.be.an('object').that.is.empty;
+
+                    done();
+                });
+        });
+
+        it('should not delete an already-deleted role', function (done) {
+            chai.request(app)
+                .put('/api/v1/roles/administrator')
                 .end((err, res) => {
                     res.should.have.status(404);
                     res.body.message.should.be.equals('Not Found');
